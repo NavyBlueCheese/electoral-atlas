@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" type="image/png" href="img/logo.png">
+<meta property="og:title" content="Thai Electoral Atlas">
+<meta property="og:description" content="An independent, nonpartisan map of Thailand's elections.">
+<title>Thai Electoral Atlas</title>
+<meta name="description" content="An independent, nonpartisan map of Thailand's elections: every constituency, every candidate, every vote count, with sources.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@500;600;700;800&family=DotGothic16&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one light paper world with full-bleed black and violet bands (from the founder's sketch). Tight mono display type, pixel-font captions, Poppins for reading. */
+:root{
+  --ink:#111111; --paper:#FFFFFF; --v:#5521FF; --v-hi:#A48BFF; --v-wash:#F1EDFF; --v-deep:#3B12C9;
+  --mute:#5E5E6A; --mute-dk:#A9A9B6; --line:#E3E3EA; --line-dk:#2A2A2E;
+  --f-big:'Azeret Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --f-dot:'DotGothic16','Azeret Mono',ui-monospace,monospace;
+  --f-body:'Poppins','IBM Plex Sans Thai',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-th:'IBM Plex Sans Thai','Poppins',system-ui,sans-serif;
+  --gut:max(20px,env(safe-area-inset-left,0px));
+  --gut-r:max(20px,env(safe-area-inset-right,0px));
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased;padding-left:0;padding-right:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--paper);z-index:80}
+a{color:inherit}
+img{max-width:100%;display:block}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:3px solid var(--v);outline-offset:3px}
+.th{font-family:var(--f-th)}
+.wrap{max-width:1320px;margin:0 auto;padding-left:var(--gut);padding-right:var(--gut-r)}
+.num{font-variant-numeric:tabular-nums}
+.dot{font-family:var(--f-dot);font-weight:400;letter-spacing:0}
+.big{font-family:var(--f-big);font-weight:800;letter-spacing:-.06em;text-transform:uppercase;line-height:.92}
+.mute{color:var(--mute)}
+.vi{color:var(--v)}
+h1,h2,h3,h4{margin:0;text-wrap:balance}
+p{margin:0}
+
+/* ---------- header ---------- */
+.hd{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;background:var(--paper);border-bottom:2px solid var(--ink)}
+.hd .wrap{display:flex;align-items:center;gap:24px;min-height:76px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex:none}
+.logo img{height:46px;width:auto}
+.logo span{font:800 15px/1.02 var(--f-big);letter-spacing:-.04em;text-transform:uppercase}
+.nav{display:flex;align-items:center;gap:4px;margin-left:auto}
+.nav a{font:400 17px/1 var(--f-dot);text-decoration:none;padding:10px 12px;position:relative}
+.nav a::after{content:"";position:absolute;left:12px;right:12px;bottom:4px;height:2px;background:var(--v);transform:scaleX(0);transform-origin:left;transition:transform .2s}
+.nav a:hover::after,.nav a.on::after{transform:scaleX(1)}
+.nav a.on{color:var(--v)}
+.nav .res{margin-left:10px;background:var(--ink);color:#fff;padding:12px 16px;border-radius:0;box-shadow:4px 4px 0 var(--v);transition:transform .15s,box-shadow .15s}
+.nav .res::after{display:none}
+.nav .res.on{color:#fff}
+.nav .res:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--v)}
+.menu-btn{display:none;margin-left:auto;font:400 17px/1 var(--f-dot);border:2px solid var(--ink);padding:10px 14px;min-height:44px}
+.drawer{position:fixed;inset:0;z-index:90;background:var(--ink);color:#fff;display:flex;flex-direction:column;padding:calc(20px + env(safe-area-inset-top,0px)) var(--gut-r) calc(24px + env(safe-area-inset-bottom,0px)) var(--gut)}
+.drawer .top{display:flex;justify-content:space-between;align-items:center}
+.drawer .x{font:400 17px var(--f-dot);border:2px solid #fff;padding:10px 14px;min-height:44px}
+.drawer nav{display:flex;flex-direction:column;margin-top:32px}
+.drawer nav a{font:800 clamp(40px,12vw,64px)/1.05 var(--f-big);letter-spacing:-.06em;text-transform:uppercase;text-decoration:none;padding:6px 0;border-bottom:1px solid var(--line-dk)}
+.drawer nav a:hover,.drawer nav a.on{color:var(--v-hi)}
+@media (max-width:980px){.nav{display:none}.menu-btn{display:inline-flex;align-items:center}}
+
+/* ---------- jiggle stickers ---------- */
+@keyframes jig{0%{transform:rotate(var(--r,0deg)) translate(0,0)}50%{transform:rotate(calc(var(--r,0deg) + 7deg)) translate(1px,-2px)}100%{transform:rotate(calc(var(--r,0deg) - 4deg)) translate(-1px,1px)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-8px) rotate(calc(var(--r,0deg) + 3deg))}}
+.jig{animation:jig 1.1s steps(3,end) infinite alternate;transform-origin:50% 60%}
+.jig.s2{animation-duration:.9s;animation-delay:-.3s}
+.jig.s3{animation-duration:1.4s;animation-delay:-.7s}
+.jig:hover{animation-duration:.25s}
+.bob{animation:bob 3.2s ease-in-out infinite}
+
+/* ---------- hero ---------- */
+.hero{padding-block:clamp(44px,6vw,84px) clamp(44px,5.5vw,76px);text-align:center;position:relative;overflow:hidden}
+.hl{display:flex;flex-direction:column;align-items:center;gap:.08em;font-size:min(100px,calc((100vw - 44px)/8.6));position:relative;width:max-content;max-width:100%;margin:0 auto}
+.hl>span{display:block;font:800 1em/.9 var(--f-big);letter-spacing:-.075em;text-transform:uppercase;white-space:nowrap;position:relative}
+.hl .box{background:var(--ink);color:#fff;padding:.04em .16em .08em .1em;box-shadow:.07em .07em 0 var(--v)}
+.hl .stop{color:var(--v)}
+.hl .ic{position:absolute;width:.62em;height:.62em;color:var(--ink)}
+.hl .ic.sp{right:-1.2em;top:-.42em;width:.38em;height:.38em}
+.hl .ic.gv{right:-.82em;top:.06em;--r:-38deg}
+.hl .ic.bx{left:-.82em;top:.08em;--r:-14deg}
+.hl .ic.sp2{right:-.5em;top:-.08em;width:.26em;height:.26em;color:var(--v)}
+.hl .ic.tk{left:-.6em;top:-.42em;width:.34em;height:.34em;color:var(--v);--r:10deg}
+.lede{font:400 clamp(15px,1.4vw,18px)/1.55 var(--f-dot);max-width:600px;margin:clamp(28px,3.4vw,40px) auto 0}
+.cta-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 36px;margin-top:36px}
+.arrow-link{display:inline-flex;align-items:center;gap:14px;font:400 18px/1 var(--f-dot);text-decoration:none;min-height:44px}
+.arrow-link svg{width:92px;height:20px;transition:transform .2s}
+.arrow-link span{text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1.5px}
+.arrow-link:hover svg{transform:translateX(8px)}
+.arrow-link:hover span{color:var(--v)}
+.hero .mascot{position:absolute;width:clamp(70px,9vw,120px);right:clamp(8px,4vw,64px);bottom:18px;--r:8deg}
+.hero .cup{position:absolute;width:clamp(64px,7vw,104px);left:clamp(8px,4vw,64px);bottom:24px;--r:-6deg}
+@media (max-width:700px){.hero .mascot,.hero .cup{display:none}.hl{font-size:calc((100vw - 40px)/9)}}
+
+/* ---------- marquee ---------- */
+.mq{background:var(--v);color:#fff;overflow:hidden;border-block:2px solid var(--ink)}
+.mq .track{display:flex;width:max-content;animation:mq 42s linear infinite}
+.mq:hover .track{animation-play-state:paused}
+.mq .seg{display:flex;gap:28px;padding:12px 14px;font:400 17px/1 var(--f-dot);white-space:nowrap}
+.mq .seg i{font-style:normal;color:#fff;opacity:.75}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* ---------- black band ---------- */
+.band{background:var(--ink);color:#fff}
+.band .mute{color:var(--mute-dk)}
+.band-in{padding-block:clamp(56px,7vw,104px)}
+.kick{font:400 17px/1.3 var(--f-dot);display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.kick b{font-weight:400;background:var(--v);color:#fff;padding:4px 8px}
+.band .kick b{background:#fff;color:var(--ink)}
+.sec-title{font:800 clamp(30px,4.2vw,60px)/.95 var(--f-big);letter-spacing:-.065em;text-transform:uppercase;margin-top:18px}
+.sec-title em{font-style:normal;color:var(--v)}
+.band .sec-title em{color:var(--v-hi)}
+.res-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(28px,4vw,64px);margin-top:44px;align-items:start}
+@media (max-width:980px){.res-grid{grid-template-columns:minmax(0,1fr)}}
+.waffle{display:grid;grid-template-columns:repeat(50,minmax(0,1fr));grid-auto-flow:column;grid-template-rows:repeat(10,auto);gap:2px;position:relative}
+.waffle i{display:block;aspect-ratio:1;border-radius:1px}
+.waffle .maj{position:absolute;top:-30px;bottom:-8px;border-left:2px dashed var(--v-hi)}
+.waffle .maj span{position:absolute;top:0;left:6px;font:400 13px/1 var(--f-dot);white-space:nowrap;color:var(--v-hi)}
+.board{margin-top:34px;border-top:2px solid #fff}
+.board .row{display:grid;grid-template-columns:18px minmax(0,1fr) auto auto;gap:4px 16px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line-dk)}
+.board .sw{width:14px;height:14px;align-self:center}
+.board .nm{font:600 17px/1.2 var(--f-body)}
+.board .nm small{display:block;font:400 13px/1.3 var(--f-th);color:var(--mute-dk)}
+.board .sp{font:400 14px/1 var(--f-dot);color:var(--mute-dk);text-align:right}
+.board .tot{font:800 clamp(28px,3vw,40px)/1 var(--f-big);letter-spacing:-.05em;text-align:right;min-width:2.3em}
+.board .row.lead .tot{color:var(--v-hi)}
+.mapbox-dk{position:relative}
+.foot-note{font:400 14px/1.5 var(--f-dot);color:var(--mute-dk);margin-top:28px;max-width:860px}
+
+/* ---------- maps ---------- */
+.map{width:100%;height:auto;display:block;touch-action:manipulation}
+.map .c{stroke:#fff;stroke-width:.5px;vector-effect:non-scaling-stroke;cursor:pointer;transition:opacity .2s}
+.map .p{fill:none;stroke:var(--ink);stroke-width:1.1px;vector-effect:non-scaling-stroke;pointer-events:none}
+.map.dk .c{stroke:#111;stroke-width:.5px}
+.map.dk .p{stroke:#111;stroke-width:1.3px}
+.map .c:hover{stroke:var(--ink);stroke-width:2px}
+.map.dk .c:hover{stroke:#fff}
+.map .c.sel{stroke:var(--v);stroke-width:3.5px}
+.map.dk .c.sel{stroke:#fff}
+.map .c.off{opacity:.13}
+.map .bkbox{fill:none;stroke:var(--v);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-dasharray:4 3}
+.map.dk .bkbox{stroke:var(--v-hi)}
+#tip{position:fixed;z-index:99;pointer-events:none;background:var(--ink);color:#fff;padding:9px 12px;font:400 14px/1.35 var(--f-body);max-width:280px;opacity:0;transition:opacity .1s;box-shadow:4px 4px 0 var(--v)}
+#tip b{font-weight:600}
+#tip .t2{font-family:var(--f-th);font-size:13px;color:var(--mute-dk)}
+
+/* ---------- insights ---------- */
+.sec{padding-block:clamp(64px,8vw,120px)}
+.ins{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,4vw,72px);padding-block:clamp(36px,5vw,64px);border-top:2px solid var(--ink);align-items:center}
+.ins.flip{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.ins.flip>.txt{order:2}
+@media (max-width:860px){.ins,.ins.flip{grid-template-columns:minmax(0,1fr)}.ins.flip>.txt{order:0}}
+.ins .n{font:800 clamp(56px,8vw,120px)/.85 var(--f-big);letter-spacing:-.08em}
+.ins h3{font:800 clamp(24px,2.6vw,36px)/1.02 var(--f-big);letter-spacing:-.05em;text-transform:uppercase;margin-top:14px}
+.ins p{margin-top:14px;max-width:520px;color:var(--mute)}
+.ins p b{color:var(--ink);font-weight:600}
+.bars2 .r{display:grid;grid-template-columns:minmax(110px,170px) minmax(0,1fr);gap:6px 16px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--line)}
+.bars2 .nm{font-weight:600;font-size:15px;line-height:1.2}
+.bars2 .ln{display:flex;align-items:center;gap:10px;font:400 14px/1 var(--f-dot)}
+.bars2 .ln i{display:block;height:12px}
+.bars2 .ln + .ln{margin-top:6px}
+.bars2 .ln.s i{height:12px;background-image:repeating-linear-gradient(90deg,currentColor 0 6px,transparent 6px 8px);background-color:transparent!important}
+.legend-inline{display:flex;flex-wrap:wrap;gap:8px 20px;font:400 14px/1 var(--f-dot);color:var(--mute);margin-top:14px}
+.legend-inline i{display:inline-block;width:22px;height:10px;margin-right:8px;vertical-align:0}
+.close-list{list-style:none;margin:0;padding:0;border-top:2px solid var(--ink)}
+.close-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;padding:12px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.close-list .pty{grid-column:1/-1;font:400 14px/1.3 var(--f-dot);color:var(--mute);display:flex;align-items:center;gap:8px}
+.close-list .pty i{width:10px;height:10px;display:inline-block}
+.close-list .who{font-weight:600}
+.close-list .who small{display:block;font:400 13px/1.3 var(--f-th);color:var(--mute)}
+.close-list .gap{font:800 26px/1 var(--f-big);letter-spacing:-.05em}
+.close-list .gap small{font:400 13px var(--f-dot);letter-spacing:0;margin-left:4px;color:var(--mute)}
+
+/* ---------- source band (violet) ---------- */
+.vband{background:var(--v);color:#fff;position:relative;overflow:hidden;border-block:2px solid var(--ink)}
+.vband .sec-title em{color:var(--ink)}
+.vgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,80px);align-items:center}
+@media (max-width:900px){.vgrid{grid-template-columns:minmax(0,1fr)}}
+.sheet{background:#fff;color:var(--ink);padding:28px 26px 30px;transform:rotate(-1.6deg);box-shadow:10px 10px 0 var(--ink);position:relative;font-family:var(--f-dot);max-width:560px;justify-self:center;width:100%}
+.sheet h4{font:400 15px/1.3 var(--f-dot);display:flex;justify-content:space-between;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.sheet .ln{display:flex;align-items:baseline;gap:8px;padding:12px 0;font-size:16px;line-height:1.35}
+.sheet .ln .lb{flex:0 1 auto}
+.sheet .ln .ld{flex:1;border-bottom:2px dotted #B9B9C4;transform:translateY(-4px);min-width:20px}
+.sheet .ln .vl{font:800 22px/1 var(--f-big);letter-spacing:-.04em;white-space:nowrap}
+.sheet .ruled{border-top:1px solid var(--line)}
+.stamp{position:absolute;right:16px;top:-26px;border:3px solid var(--v);color:var(--v);font:800 20px/1 var(--f-big);letter-spacing:-.04em;padding:8px 12px;transform:rotate(9deg);background:rgba(255,255,255,.85);text-transform:uppercase}
+.sheet .peek{position:absolute;width:92px;left:-96px;bottom:-56px;--r:-10deg}
+@media (max-width:900px){.sheet .peek{left:auto;right:-10px;bottom:-74px;width:76px}}
+.sheet{margin-bottom:40px}
+.btn-ink{display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:#fff;font:400 17px/1 var(--f-dot);padding:15px 20px;text-decoration:none;box-shadow:5px 5px 0 #fff;transition:transform .15s,box-shadow .15s;min-height:48px}
+.btn-ink:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #fff}
+.btn-v{display:inline-flex;align-items:center;gap:12px;background:var(--v);color:#fff;font:400 17px/1 var(--f-dot);padding:15px 20px;text-decoration:none;box-shadow:5px 5px 0 var(--ink);transition:transform .15s,box-shadow .15s;min-height:48px;border:0}
+.btn-v:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+.btn-o{display:inline-flex;align-items:center;gap:10px;border:2px solid var(--ink);font:400 16px/1 var(--f-dot);padding:12px 16px;text-decoration:none;min-height:44px;background:var(--paper)}
+.btn-o:hover{background:var(--ink);color:#fff}
+
+/* ---------- index rows ---------- */
+.idx{border-top:2px solid var(--ink)}
+.idx a{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) 64px;gap:12px 32px;align-items:center;padding:22px 0;border-bottom:2px solid var(--ink);text-decoration:none;position:relative;transition:padding .25s,background .25s,color .25s}
+.idx a .w{font:800 clamp(34px,5vw,72px)/.9 var(--f-big);letter-spacing:-.075em;text-transform:uppercase}
+.idx a .d{color:var(--mute);font-size:16px;max-width:430px}
+.idx a .ar{justify-self:end;width:56px;height:56px;transition:transform .25s}
+.idx a img{position:absolute;right:120px;top:50%;width:84px;transform:translateY(-50%) rotate(-8deg) scale(.4);opacity:0;transition:.25s;pointer-events:none}
+.idx a:hover{background:var(--v);color:#fff;padding-left:20px;padding-right:20px}
+.idx a:hover .d{color:#fff}
+.idx a:hover .ar{transform:rotate(-45deg)}
+.idx a:hover img{opacity:1;transform:translateY(-50%) rotate(-8deg) scale(1)}
+@media (max-width:760px){.idx a{grid-template-columns:minmax(0,1fr) 40px}.idx a .d{grid-column:1/-1;grid-row:2}.idx a .ar{width:36px;height:36px;grid-row:1;grid-column:2}.idx a img{display:none}}
+
+/* ---------- footer ---------- */
+.ft{background:var(--ink);color:#fff;overflow:hidden}
+.ft .giant{font:800 clamp(38px,9vw,150px)/.82 var(--f-big);letter-spacing:-.085em;text-transform:uppercase;padding-top:clamp(48px,6vw,80px);display:flex;align-items:flex-end;gap:.15em;flex-wrap:wrap}
+.ft .top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end;padding-top:clamp(48px,6vw,80px)}
+.ft .giant{padding-top:0}
+.ft .wave{width:clamp(110px,16vw,230px);--r:6deg}
+@media (max-width:640px){.ft .top{grid-template-columns:minmax(0,1fr)}.ft .wave{width:110px;justify-self:end;margin-top:-20px}}
+.ft-grid{display:grid;grid-template-columns:minmax(0,1.3fr) repeat(2,minmax(0,1fr));gap:32px;padding-block:44px calc(36px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line-dk);margin-top:40px;font-size:14px;color:var(--mute-dk)}
+.ft-grid h4{font:400 15px/1 var(--f-dot);color:#fff;margin-bottom:12px}
+.ft-grid a{color:var(--mute-dk);text-decoration:none;display:block;padding:3px 0}
+.ft-grid a:hover{color:#fff}
+@media (max-width:760px){.ft-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- page header ---------- */
+.ph{padding-block:clamp(40px,6vw,80px) clamp(24px,3vw,40px);border-bottom:2px solid var(--ink);position:relative}
+.ph h1{font:800 clamp(30px,7vw,100px)/.88 var(--f-big);letter-spacing:-.075em;text-transform:uppercase;margin-top:18px}
+.ph p{margin-top:20px;max-width:640px;color:var(--mute);font-size:17px}
+.ph .stk{position:absolute;right:var(--gut-r);bottom:-30px;width:clamp(76px,9vw,120px);--r:6deg}
+@media (max-width:700px){.ph .stk{width:64px;bottom:-18px}}
+
+/* ---------- map page ---------- */
+.mapgrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:0;border-bottom:2px solid var(--ink)}
+@media (max-width:1000px){.mapgrid{grid-template-columns:minmax(0,1fr)}}
+.mapcol{border-right:2px solid var(--ink);padding:20px var(--gut-r) 28px var(--gut);min-width:0}
+@media (max-width:1000px){.mapcol{border-right:0;border-bottom:2px solid var(--ink)}}
+.ctl{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.ctl label,.ctl .lab{min-width:0;max-width:100%;display:flex;flex-direction:column;gap:7px;font:400 14px/1 var(--f-dot);color:var(--mute)}
+.seg{display:inline-flex;border:2px solid var(--ink)}
+.seg button{font:400 15px/1 var(--f-dot);padding:10px 12px;min-height:40px;border-right:2px solid var(--ink)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--ink);color:#fff}
+.seg button:hover:not(.on){background:var(--v-wash)}
+select.sel{font:500 15px/1.2 var(--f-body);border:2px solid var(--ink);border-radius:0;padding:9px 34px 9px 12px;min-height:44px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23111' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;appearance:none;color:var(--ink);max-width:100%;width:100%;text-overflow:ellipsis}
+.map{overflow:hidden}
+.mapwrap{position:relative;margin-top:14px}
+.mapwrap .zoom{position:absolute;right:0;top:0;display:flex;flex-direction:column;gap:6px;z-index:2}
+.mapwrap .zoom button{width:44px;height:44px;border:2px solid var(--ink);background:#fff;font:800 20px/1 var(--f-big)}
+.mapwrap .zoom button:hover{background:var(--ink);color:#fff}
+.inset{margin-top:10px;border-top:1px solid var(--line);padding-top:12px}
+.inset .cap{font:400 14px/1.2 var(--f-dot);color:var(--mute);display:flex;justify-content:space-between;gap:12px}
+.lg{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.lg button{display:inline-flex;align-items:center;gap:8px;font:500 13.5px/1 var(--f-body);border:1.5px solid var(--line);padding:8px 10px;min-height:36px;background:#fff}
+.lg button i{width:12px;height:12px;display:inline-block}
+.lg button b{font:400 13px/1 var(--f-dot);color:var(--mute)}
+.lg button.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.lg button.on b{color:var(--mute-dk)}
+.lg button.dim{opacity:.4}
+.ramp{display:flex;align-items:stretch;margin-top:14px;font:400 13px/1 var(--f-dot);color:var(--mute);flex-wrap:wrap;gap:4px 0}
+.ramp span{display:flex;flex-direction:column;gap:6px;min-width:64px;flex:1}
+.ramp span i{height:12px;display:block}
+.side{padding:24px var(--gut-r) 32px clamp(20px,2.4vw,36px);min-width:0;position:relative}
+.side .eyebrow{font:400 15px/1.2 var(--f-dot);color:var(--mute)}
+.side h2{font:800 clamp(32px,3.4vw,50px)/.95 var(--f-big);letter-spacing:-.06em;text-transform:uppercase;margin-top:10px}
+.side h2 small{display:block;font:500 18px/1.3 var(--f-th);letter-spacing:0;text-transform:none;color:var(--mute);margin-top:8px}
+.winner{margin-top:24px;padding:18px 0;border-block:2px solid var(--ink);display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 16px;align-items:center}
+.winner .chipc{width:20px;height:56px}
+.winner .who{font:600 20px/1.25 var(--f-th)}
+.winner .pt{font:400 15px/1.3 var(--f-dot);color:var(--mute)}
+.cands{margin-top:18px}
+.cands .r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.cands .r .n{font:500 15px/1.3 var(--f-th)}
+.cands .r .n small{display:block;color:var(--mute);font-size:13px}
+.cands .r .v{font:400 15px/1.3 var(--f-dot);text-align:right}
+.cands .r .b{grid-column:1/-1;height:6px;background:var(--line)}
+.cands .r .b i{display:block;height:100%}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;margin-top:22px;border-top:2px solid var(--ink)}
+.facts div{padding:12px 0;border-bottom:1px solid var(--line)}
+.facts div:nth-child(odd){padding-right:14px;border-right:1px solid var(--line)}
+.facts div:nth-child(even){padding-left:14px}
+.facts span{display:block;font:400 13px/1.3 var(--f-dot);color:var(--mute)}
+.facts b{font:800 24px/1.1 var(--f-big);letter-spacing:-.04em}
+.check{display:flex;gap:12px;align-items:flex-start;margin-top:20px;padding:14px 0;border-top:1px dashed var(--ink);font-size:14px}
+.check .st{font:800 13px/1 var(--f-big);text-transform:uppercase;letter-spacing:-.02em;border:2px solid currentColor;padding:6px 8px;flex:none;transform:rotate(-3deg)}
+.check.ok .st{color:var(--v)}
+.check.warn .st{color:#B45309}
+.check.miss .st{color:var(--mute)}
+.mini-h{font:400 15px/1.2 var(--f-dot);margin-top:26px;display:flex;justify-content:space-between;gap:12px}
+.plrow{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
+.plrow i{width:12px;height:12px}
+.plrow b{font:400 14px var(--f-dot);font-weight:400}
+.area{font:400 13.5px/1.6 var(--f-th);color:var(--mute);margin-top:14px}
+.prov-list{columns:2;column-gap:28px;margin-top:18px}
+.prov-list button{display:flex;justify-content:space-between;width:100%;text-align:left;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px;break-inside:avoid;gap:8px}
+.prov-list button:hover{color:var(--v)}
+.prov-list button i{width:10px;height:10px;display:inline-block;margin-right:8px;vertical-align:0}
+@media (max-width:520px){.prov-list{columns:1}}
+
+/* ---------- parties ---------- */
+.score{border-top:2px solid var(--ink)}
+.score .r{display:grid;grid-template-columns:28px minmax(0,1.4fr) minmax(0,2fr) 90px 110px 130px;gap:10px 20px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.score .r.h{font:400 14px/1.2 var(--f-dot);color:var(--mute);padding:12px 0;border-bottom:2px solid var(--ink)}
+.score .sw{width:22px;height:22px}
+.score .nm{font:600 18px/1.2 var(--f-body)}
+.score .nm small{display:block;font:400 14px/1.3 var(--f-th);color:var(--mute)}
+.score .tot{font:800 40px/1 var(--f-big);letter-spacing:-.06em;text-align:right}
+.score .sp{font:400 15px/1.3 var(--f-dot);text-align:right;color:var(--mute)}
+.score .lv{font:400 15px/1.3 var(--f-dot);text-align:right}
+.score .sb{display:flex;height:16px;background:var(--line)}
+.score .sb i{display:block;height:100%}
+.score .sb i.l{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 3px,transparent 3px 7px)}
+@media (max-width:900px){.score .r{grid-template-columns:22px minmax(0,1fr) auto;}.score .r>.sbw,.score .r>.lv,.score .r.h>:nth-child(3),.score .r.h>:nth-child(5){display:none}.score .sp{grid-column:2;text-align:left;margin-top:-6px}.score .r.h .sp{display:none}}
+.coal{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,4vw,64px);align-items:start}
+@media (max-width:900px){.coal{grid-template-columns:minmax(0,1fr)}}
+.pick{display:flex;flex-wrap:wrap;gap:8px}
+.pick button{display:inline-flex;align-items:center;gap:10px;border:2px solid var(--ink);padding:10px 12px;font:500 15px/1 var(--f-body);min-height:44px;background:#fff}
+.pick button i{width:14px;height:14px}
+.pick button b{font:400 14px/1 var(--f-dot)}
+.pick button.on{background:var(--ink);color:#fff;box-shadow:4px 4px 0 var(--v)}
+.meter{position:relative;height:56px;border:2px solid var(--ink);display:flex;background:#fff;margin-top:8px}
+.meter i{display:block;height:100%;transition:width .35s}
+.meter .mk{position:absolute;top:-10px;bottom:-10px;left:50.2%;border-left:3px solid var(--v)}
+.meter .mk span{position:absolute;top:-24px;left:-30px;font:400 13px/1 var(--f-dot);color:var(--v);white-space:nowrap}
+.coal-out{font:800 clamp(56px,8vw,112px)/.9 var(--f-big);letter-spacing:-.08em;margin-top:28px}
+.coal-out small{font:400 18px var(--f-dot);letter-spacing:0;color:var(--mute);margin-left:10px}
+.verdict{font:800 22px/1.1 var(--f-big);letter-spacing:-.04em;text-transform:uppercase;margin-top:12px}
+
+/* ---------- patterns / compare ---------- */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,80px);align-items:start}
+@media (max-width:900px){.two{grid-template-columns:minmax(0,1fr)}}
+.h-sec{font:800 clamp(28px,3.4vw,46px)/.95 var(--f-big);letter-spacing:-.06em;text-transform:uppercase}
+.h-sec + p{margin-top:12px;color:var(--mute);max-width:560px}
+.chart-svg{width:100%;height:auto;display:block;overflow:visible}
+.chart-svg text{font-family:var(--f-dot);font-size:12px;fill:var(--mute)}
+.chart-svg .gl{stroke:var(--line);stroke-width:1}
+.reg .r{display:grid;grid-template-columns:110px minmax(0,1fr) 40px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.reg .bar{display:flex;height:22px}
+.reg .bar i{display:block;height:100%;border-right:1px solid #fff}
+.reg .r b{font:400 14px var(--f-dot);text-align:right;font-weight:400}
+.aside-note{display:grid;grid-template-columns:110px minmax(0,1fr);gap:20px;align-items:center;padding:24px 0;border-block:2px dashed var(--ink);margin-top:40px}
+.aside-note img{width:110px;--r:-6deg}
+.aside-note h4{font:800 22px/1.05 var(--f-big);letter-spacing:-.04em;text-transform:uppercase}
+.aside-note p{margin-top:8px;color:var(--mute);font-size:15px}
+@media (max-width:520px){.aside-note{grid-template-columns:72px minmax(0,1fr)}.aside-note img{width:72px}}
+.slope text{font-family:var(--f-body);font-size:13px;fill:var(--ink)}
+.slope .yr{font-family:var(--f-big);font-weight:800;font-size:22px;letter-spacing:-.04em}
+.slope .v{font-family:var(--f-big);font-weight:800;font-size:15px}
+.big-pair{display:flex;flex-wrap:wrap;gap:28px 56px;margin-top:20px}
+.big-pair div span{display:block;font:400 14px/1.3 var(--f-dot);color:var(--mute)}
+.big-pair div b{font:800 clamp(48px,6vw,84px)/.95 var(--f-big);letter-spacing:-.07em}
+
+/* ---------- data page ---------- */
+.tally{background:#fff;border:2px solid var(--ink);box-shadow:8px 8px 0 var(--v);overflow-x:auto}
+.tally table{border-collapse:collapse;width:100%;min-width:720px;font-size:14px}
+.tally th,.tally td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}
+.tally thead th{font:400 14px/1.2 var(--f-dot);background:var(--ink);color:#fff;border-color:var(--ink)}
+.tally tbody th{font-weight:600;width:24%}
+.tally td button{display:flex;flex-direction:column;gap:4px;text-align:left;width:100%}
+.mk-ok,.mk-part,.mk-gap,.mk-miss{font:400 14px/1.2 var(--f-dot);display:inline-flex;gap:6px;align-items:center}
+.mk-ok{color:var(--v)}.mk-part{color:var(--ink)}.mk-gap{color:#B45309}.mk-miss{color:var(--mute)}
+.tally td.on{background:var(--v-wash);outline:2px solid var(--v);outline-offset:-2px}
+.cell-note{margin-top:20px;padding:20px 0;border-top:2px solid var(--ink);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
+@media (max-width:800px){.cell-note{grid-template-columns:minmax(0,1fr)}}
+.cell-note h4{font:800 24px/1 var(--f-big);letter-spacing:-.05em;text-transform:uppercase}
+.cell-note a{display:block;font:400 15px/1.5 var(--f-dot);color:var(--v)}
+.diff{width:100%;border-collapse:collapse;font-size:14px;min-width:620px}
+.diff th{font:400 13px/1.2 var(--f-dot);color:var(--mute);text-align:left;padding:8px 10px;border-bottom:2px solid var(--ink)}
+.diff td{padding:9px 10px;border-bottom:1px solid var(--line)}
+.diff td.r,.diff th.r{text-align:right;font-family:var(--f-dot)}
+.scroll-x{overflow-x:auto}
+.src li{padding:14px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px}
+.src{list-style:none;margin:0;padding:0;border-top:2px solid var(--ink)}
+.src a{font-weight:600;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.src small{grid-column:1/-1;color:var(--mute)}
+.src .lic{font:400 13px/1.2 var(--f-dot);border:1.5px solid var(--ink);padding:5px 7px;align-self:start}
+
+/* ---------- lab ---------- */
+.menu-board{background:var(--ink);color:#fff;padding:clamp(24px,4vw,48px);box-shadow:10px 10px 0 var(--v)}
+.menu-board li{display:flex;align-items:baseline;gap:12px;padding:16px 0;border-bottom:1px dashed #444;flex-wrap:wrap}
+.menu-board ul{list-style:none;margin:0;padding:0}
+.menu-board .t{font:800 clamp(22px,2.6vw,34px)/1 var(--f-big);letter-spacing:-.05em;text-transform:uppercase}
+.menu-board .ld{flex:1;border-bottom:2px dotted #555;min-width:30px;transform:translateY(-6px)}
+.menu-board .s{font:400 15px/1 var(--f-dot);color:var(--v-hi)}
+.menu-board p{flex-basis:100%;color:var(--mute-dk);font-size:14.5px;margin-top:6px}
+.code{background:var(--ink);color:#fff;font:400 14px/1.6 var(--f-big);padding:20px;overflow-x:auto;white-space:pre}
+.code .k{color:var(--v-hi)}
+
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+</style>
+</head>
+<body>
+<header class="hd"><div class="wrap">
+  <a class="logo" href="#" aria-label="Thai Electoral Atlas, home"><img src="img/logo.png" alt="" width="26" height="46"><span>Thai<br>Electoral<br>Atlas</span></a>
+  <nav class="nav" id="nav" aria-label="Main"></nav>
+  <button class="menu-btn" aria-label="Open menu">MENU</button>
+</div></header>
+<div class="drawer" id="drawer" hidden role="dialog" aria-label="Menu"><div class="top"><a class="logo" href="#" style="color:#fff"><img src="img/logo-w.png" alt="" style="height:46px;width:auto"><span>Thai<br>Electoral<br>Atlas</span></a><button class="x">CLOSE</button></div><nav></nav></div>
+<main id="main"></main>
+<footer class="ft"><div class="wrap">
+  <div class="top"><div class="giant">Thai Electoral Atlas</div><img class="wave jig s3" src="img/IMG_7764.webp" alt=""></div>
+  <div class="ft-grid">
+    <div><h4>About</h4><p style="max-width:440px">An independent, nonpartisan research project. We show official results as published, label every estimate, and link every number to its source. We do not take sides on any party or claim.</p><img src="img/IMG_7758.webp" alt="" class="bob" style="width:84px;margin-top:22px;--r:-6deg"></div>
+    <div><h4>Explore</h4><a href="#map">Map</a><a href="#parties">Parties</a><a href="#patterns">Patterns</a><a href="#compare">Compare</a><a href="#data">Data</a><a href="#lab">For researchers</a></div>
+    <div><h4>Built on</h4><a href="https://github.com/jjpeechaphand/election69" target="_blank" rel="noopener">ECT results files (election69)</a><a href="https://github.com/killernay/election-69-OCR-result" target="_blank" rel="noopener">Signed forms by OCR</a><a href="https://github.com/KittapatR/Thai-ECT-election-map" target="_blank" rel="noopener">Constituency maps (MIT)</a><p style="margin-top:14px">Design preview. English first, Thai coming.</p></div>
+  </div>
+</div></footer>
+<div id="tip" role="tooltip"></div>
+<script src="data.js"></script>
+<script>
+/* Thai Electoral Atlas: site app */
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>Number(n).toLocaleString('en-US');
+const f1=(n,d=1)=>Number(n).toFixed(d);
+const mil=n=>(n/1e6).toFixed(1)+'M';
+
+/* ---------- data ---------- */
+const PM={};DATA.parties.forEach(p=>PM[p.th]=p);
+const col=th=>(PM[th]&&PM[th].c)||'#B8B8C2';
+const en=th=>(PM[th]&&PM[th].en)||th;
+const PROV=DATA.prov, CONS=DATA.cons, IDS=Object.keys(CONS);
+IDS.forEach(k=>{const c=CONS[k],p=PROV[c.p];c.name=p.en+' '+c.n;c.thn=p.th+' เขต '+c.n;c.gap=c.cand[0][2]-c.cand[1][2];c.turn=100*c.tu/c.el});
+const SEATED=DATA.parties.filter(p=>p.cs+p.ls>0).sort((a,b)=>(b.cs+b.ls)-(a.cs+a.ls)||b.lv-a.lv);
+const TOT=DATA.tot, TURN=100*TOT.tu/TOT.el;
+const LISTVALID=IDS.reduce((s,k)=>s+CONS[k].plt,0);
+const LEAD=SEATED[0];
+const XC=DATA.xc;
+const IMG=n=>'img/'+n+'.webp';
+const ST={sel:null,mode:'winner',share:'ประชาชน',focus:new Set(),prov:'',coal:new Set(),scP:'ประชาชน',cell:'cons|2026'};
+
+/* ---------- icons ---------- */
+const IC={
+spark:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 1c1.4 9.6 4.4 15 18 19-13.6 4-16.6 9.4-18 19-1.4-9.6-4.4-15-18-19 13.6-4 16.6-9.4 18-19z" fill="currentColor"/></svg>',
+gavel:'<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="21" y="6" width="22" height="30" rx="4" fill="currentColor"/><rect x="16" y="2" width="32" height="9" rx="3" fill="currentColor"/><rect x="16" y="31" width="32" height="9" rx="3" fill="currentColor"/><rect x="28" y="38" width="8" height="25" rx="4" fill="currentColor"/></svg>',
+ballot:'<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="4" width="56" height="56" rx="8" fill="currentColor"/><path d="M20 20l24 24M44 20L20 44" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>',
+tick:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 21l10 10L36 8" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+arrow:'<svg viewBox="0 0 92 20" aria-hidden="true"><path d="M0 10h88M79 1l9 9-9 9" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+arr:'<svg viewBox="0 0 56 56" aria-hidden="true"><path d="M8 28h38M32 13l15 15-15 15" fill="none" stroke="currentColor" stroke-width="4"/></svg>'
+};
+
+/* ---------- map ---------- */
+const RAMP=['#3B12C9','#5521FF','#8B6BFF','#BEAEFF','#E6E0FF'];
+const MBIN=[2,5,10,20], TBIN=[65,70,75,80], SBIN=[10,20,30,40,50];
+const binIdx=(v,b)=>{let i=0;while(i<b.length&&v>=b[i])i++;return i};
+const mixW=(hex,a)=>{const n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255,m=x=>Math.round(255+(x-255)*a);return 'rgb('+m(r)+','+m(g)+','+m(b)+')'};
+const shareOf=(c,th)=>{let v=0;c.cand.forEach(x=>{if(x[1]===th)v+=x[2]});return 100*v/c.va};
+function fillFor(k,mode){const c=CONS[k];
+  if(mode==='margin')return RAMP[binIdx(c.mar,MBIN)];
+  if(mode==='turnout')return RAMP[4-binIdx(c.turn,TBIN)];
+  if(mode==='share'){const s=shareOf(c,ST.share);return s<=0?'#F4F4F7':mixW(col(ST.share),[.1,.25,.42,.6,.8,1][binIdx(s,SBIN)])}
+  return col(c.w)}
+function mapSVG(o){const g=GEO,cls='map'+(o.dark?' dk':'');
+  let s='<svg class="'+cls+'" id="'+(o.id||'')+'" viewBox="'+(o.vb||('0 0 '+g.w+' '+g.h))+'" role="img" aria-label="'+esc(o.label||'Map of Thailand’s 400 constituencies, 2026')+'">';
+  for(const k of IDS)s+='<path class="c" data-id="'+k+'" d="'+g.cons[k].d+'" fill="'+fillFor(k,o.mode||'winner')+'"/>';
+  for(const k in g.prov)s+='<path class="p" d="'+g.prov[k].d+'"/>';
+  if(o.bkk){const b=g.bkk.box;s+='<rect class="bkbox" x="'+(b[0]-4)+'" y="'+(b[1]-4)+'" width="'+(b[2]-b[0]+8)+'" height="'+(b[3]-b[1]+8)+'"/>'}
+  return s+'</svg>'}
+function bkkSVG(o){const b=GEO.bkk;let s='<svg class="map'+(o.dark?' dk':'')+'" id="'+(o.id||'')+'" viewBox="0 0 '+b.w+' '+b.h+'" role="img" aria-label="Bangkok’s 33 constituencies, enlarged">';
+  b.nb.forEach(d=>s+='<path d="'+d+'" fill="'+(o.dark?'#1d1d22':'#F2F2F5')+'" stroke="'+(o.dark?'#333':'#D6D6DE')+'" stroke-width="1"/>');
+  for(const k in b.cons){const c=b.cons[k];s+='<path class="c" data-id="'+k+'" d="'+c.d+'" fill="'+fillFor(k,o.mode||'winner')+'"/>'}
+  if(o.labels)for(const k in b.cons){const c=b.cons[k],f=fillFor(k,o.mode||'winner');s+='<text x="'+c.c[0]+'" y="'+(c.c[1]+4)+'" text-anchor="middle" style="font:400 11px var(--f-dot);fill:'+txtOn(f)+';pointer-events:none">'+CONS[k].n+'</text>'}
+  return s+'</svg>'}
+function txtOn(c){let r,g,b;if(c[0]==='#'){const n=parseInt(c.slice(1),16);r=n>>16;g=n>>8&255;b=n&255}else{[r,g,b]=c.match(/\d+/g).map(Number)}return (0.299*r+0.587*g+0.114*b)>150?'#111':'#fff'}
+
+/* tooltip */
+const tip=$('#tip');
+function showTip(e,k){const c=CONS[k],w=c.cand[0];tip.innerHTML='<b>'+esc(c.name)+'</b><div class="t2">'+esc(c.thn)+'</div><div style="margin-top:6px"><span style="display:inline-block;width:10px;height:10px;background:'+col(c.w)+';margin-right:6px"></span>'+esc(en(c.w))+' won by '+fmt(c.gap)+' votes</div>';tip.style.opacity=1;moveTip(e)}
+function moveTip(e){const w=tip.offsetWidth,h=tip.offsetHeight;let x=e.clientX+16,y=e.clientY+18;if(x+w>innerWidth-8)x=e.clientX-w-16;if(y+h>innerHeight-8)y=e.clientY-h-16;tip.style.left=x+'px';tip.style.top=y+'px'}
+document.addEventListener('mouseover',e=>{const t=e.target.closest&&e.target.closest('.c[data-id]');if(t)showTip(e,t.dataset.id)});
+document.addEventListener('mousemove',e=>{if(tip.style.opacity==='1')moveTip(e)});
+document.addEventListener('mouseout',e=>{const t=e.target.closest&&e.target.closest('.c[data-id]');if(t)tip.style.opacity=0});
+
+/* ---------- shared bits ---------- */
+const pageHead=(kick,title,p,stk)=>'<header class="ph wrap"><div class="kick">'+kick+'</div><h1>'+title+'</h1>'+(p?'<p>'+p+'</p>':'')+(stk?'<img class="stk bob" src="'+IMG(stk)+'" alt="">':'')+'</header>';
+const sw=c=>'<i style="background:'+c+'"></i>';
+
+/* ---------- HOME ---------- */
+function home(){
+  const bk=IDS.filter(k=>CONS[k].p==='10'),bkW={};bk.forEach(k=>bkW[CONS[k].w]=(bkW[CONS[k].w]||0)+1);
+  const bkTop=Object.entries(bkW).sort((a,b)=>b[1]-a[1])[0];
+  const close=IDS.map(k=>CONS[k]).sort((a,b)=>a.gap-b.gap),under1k=close.filter(c=>c.gap<1000).length;
+  const top4=SEATED.slice(0,4);
+  const listLead=[...DATA.parties].sort((a,b)=>b.lv-a.lv)[0];
+  let waffle='';SEATED.forEach(p=>{for(let i=0;i<p.cs+p.ls;i++)waffle+='<i style="background:'+p.c+'" title="'+esc(p.en)+'"></i>'});
+  const others=SEATED.slice(6),oSum=others.reduce((s,p)=>s+p.cs+p.ls,0);
+  const brow=(p,lead)=>'<div class="row'+(lead?' lead':'')+'"><span class="sw" style="background:'+p.c+'"></span><span class="nm">'+esc(p.en)+'<small>'+esc(p.th)+'</small></span><span class="sp">'+p.cs+' + '+p.ls+'</span><span class="tot">'+(p.cs+p.ls)+'</span></div>';
+  const mq='<div class="seg"><span>2026 general election</span><i>✦</i><span>400 constituencies</span><i>✦</i><span>'+fmt(TOT.el)+' eligible voters</span><i>✦</i><span>'+f1(TURN)+'% turnout</span><i>✦</i><span>'+fmt(TOT.iv)+' spoiled ballots</span><i>✦</i><span>'+fmt(TOT.nv)+' chose “none of the above”</span><i>✦</i><span>'+XC.agree+' of '+XC.ocr_files+' winners checked against signed forms</span><i>✦</i></div>';
+  return '<section class="hero wrap">'+
+  '<h1 class="hl" aria-label="Every seat, every ballot, mapped"><span class="l1">Every seat<span class="ic sp jig">'+IC.spark+'</span><span class="ic gv jig s2">'+IC.gavel+'</span><span class="ic tk jig s3">'+IC.tick+'</span></span><span class="box">Every ballot</span><span class="l3"><span class="ic bx jig s3">'+IC.ballot+'</span>Mapped<span class="ic sp2 jig s2">'+IC.spark+'</span></span></h1>'+
+  '<p class="lede">Thai Electoral Atlas is an independent, nonpartisan map of Thailand’s elections. Official results in plain language, with every number traced back to the Election Commission’s own records.</p>'+
+  '<div class="cta-row"><a class="arrow-link" href="#map">'+IC.arrow+'<span>EXPLORE THE 2026 MAP</span></a><a class="arrow-link" href="#data">'+IC.arrow+'<span>HOW WE CHECK THE NUMBERS</span></a></div>'+
+  '<img class="mascot bob" src="'+IMG('IMG_7752')+'" alt="">'+'<img class="cup bob" style="animation-delay:-1.4s" src="'+IMG('IMG_7748')+'" alt="">'+
+  '</section>'+
+  '<div class="mq" aria-hidden="true"><div class="track">'+mq+mq+'</div></div>'+
+  '<section class="band"><div class="wrap band-in"><div class="kick"><b>RESULT</b>General election, 8 February 2026</div>'+
+  '<h2 class="sec-title">'+esc(LEAD.en)+' won <em>'+(LEAD.cs+LEAD.ls)+'</em> of 500 seats. Nobody won a majority alone.</h2>'+
+  '<div class="res-grid"><div><div class="waffle" aria-label="500 seats by party">'+waffle+'<span class="maj" style="left:calc(50.2% - 1px)"><span>251 FOR A MAJORITY</span></span></div>'+
+  '<div class="board">'+SEATED.slice(0,6).map((p,i)=>brow(p,i===0)).join('')+'<div class="row"><span class="sw" style="background:#55555F"></span><span class="nm">'+others.length+' other parties<small>'+esc(others.map(p=>p.en).join(', '))+'</small></span><span class="sp"></span><span class="tot">'+oSum+'</span></div></div>'+
+  '<p class="foot-note">Seats shown as constituency + party-list. Counts follow the Election Commission’s published results files. Certified totals reported on 6 March 2026 gave Bhumjaithai 191, with one constituency still pending.</p></div>'+
+  '<div class="mapbox-dk">'+mapSVG({dark:true,id:'homeMap',bkk:true})+'<p class="foot-note" style="margin-top:12px">Each shape is one of the 400 constituencies, coloured by the winning party. Tap one to open it on the full map.</p></div></div></div></section>'+
+  '<section class="sec wrap"><div class="kick"><b>WHAT THE MAP SAYS</b></div><h2 class="sec-title" style="max-width:1000px">Three things the 2026 result tells you</h2><div style="margin-top:44px">'+
+  '<div class="ins"><div class="txt"><div class="n">'+mil(listLead.lv)+'</div><h3>Most votes is not most seats</h3><p><b>'+esc(listLead.en)+'</b> won the party-list vote with '+fmt(listLead.lv)+' votes, '+f1(100*listLead.lv/LISTVALID)+'% of the total. <b>'+esc(LEAD.en)+'</b> won '+(LEAD.cs+LEAD.ls)+' seats, because 400 of the 500 seats go to whoever wins each constituency.</p></div>'+
+  '<div class="bars2">'+top4.map(p=>'<div class="r"><span class="nm">'+esc(p.en)+'</span><div><div class="ln" style="color:'+p.c+'"><i style="width:'+(100*p.lv/LISTVALID*2.2)+'%;background:'+p.c+'"></i><span style="color:var(--ink)">'+f1(100*p.lv/LISTVALID)+'% of list votes</span></div><div class="ln s" style="color:'+p.c+'"><i style="width:'+((p.cs+p.ls)/5*2.2)+'%"></i><span style="color:var(--ink)">'+f1((p.cs+p.ls)/5)+'% of seats</span></div></div></div>').join('')+
+  '<div class="legend-inline"><span><i style="background:var(--ink)"></i>share of party-list votes</span><span><i style="background-image:repeating-linear-gradient(90deg,#111 0 6px,transparent 6px 8px)"></i>share of the 500 seats</span></div></div></div>'+
+  '<div class="ins flip"><div class="txt"><div class="n">'+bkTop[1]+'<span style="color:var(--v)">/</span>33</div><h3>Bangkok voted as one block</h3><p><b>'+esc(en(bkTop[0]))+'</b> won '+(bkTop[1]===33?'every one':bkTop[1])+' of Bangkok’s 33 constituencies. Across the rest of the country, the same party won '+(PM[bkTop[0]].cs-bkTop[1])+' of 367.</p></div><div>'+bkkSVG({labels:true})+'</div></div>'+
+  '<div class="ins"><div class="txt"><div class="n">'+under1k+'</div><h3>Seats won by fewer than 1,000 votes</h3><p>The closest race was <b>'+esc(close[0].name)+'</b>, decided by '+fmt(close[0].gap)+' votes out of '+fmt(close[0].va)+' valid ballots.</p></div>'+
+  '<ol class="close-list">'+close.slice(0,5).map(c=>'<li><span class="who">'+esc(c.name)+'<small>'+esc(c.thn)+'</small></span><span class="gap">'+fmt(c.gap)+'<small>votes</small></span><span class="pty"><i style="background:'+col(c.w)+'"></i>'+esc(en(c.w))+' beat '+esc(en(c.cand[1][1]))+'</span></li>').join('')+'</ol></div>'+
+  '</div></section>'+
+  '<section class="vband"><div class="wrap sec vgrid"><div><div class="kick"><b style="background:var(--ink)">RECEIPTS</b></div><h2 class="sec-title" style="color:#fff">We check the numbers against the <em>signed forms</em>.</h2><p style="margin-top:20px;max-width:520px;font-size:17px">The Election Commission published results online and as signed PDF forms (ส.ส. 6/1). We compare the two, and we show you every place they disagree.</p><div style="margin-top:28px"><a class="btn-ink" href="#data">See every difference →</a></div></div>'+
+  '<div class="sheet"><span class="stamp">Checked</span><h4><span>TALLY 2026, CONSTITUENCY</span><span>FORM 6/1</span></h4>'+
+  '<div class="ln"><span class="lb">Signed forms read</span><span class="ld"></span><span class="vl">'+XC.ocr_files+'/400</span></div>'+
+  '<div class="ln ruled"><span class="lb">Winners that match</span><span class="ld"></span><span class="vl">'+XC.agree+'/'+XC.ocr_files+'</span></div>'+
+  '<div class="ln ruled"><span class="lb">Vote counts that differ</span><span class="ld"></span><span class="vl">'+XC.ndiff+'</span></div>'+
+  '<div class="ln ruled"><span class="lb">Biggest difference</span><span class="ld"></span><span class="vl">'+fmt(Math.abs(XC.maxdiff[2]-XC.maxdiff[3]))+'</span></div>'+
+  '<div class="ln ruled"><span class="lb">Forms not yet read</span><span class="ld"></span><span class="vl">'+XC.missing.length+'</span></div>'+
+  '<img class="peek jig s3" src="'+IMG('IMG_7760')+'" alt=""></div></div></section>'+
+  '<section class="sec wrap"><div class="kick"><b>START HERE</b></div><div class="idx" style="margin-top:28px">'+
+  [['map','Map','Every constituency, every candidate, every vote count.','IMG_7764'],['parties','Parties','Seats, votes, and a coalition calculator you can play with.','IMG_7766'],['patterns','Patterns','Where each party is strong, and what the map can’t tell you.','IMG_7753'],['compare','Compare','How 2026 differs from 2023.','IMG_7755'],['data','Data','What we have, what is missing, and where it all comes from.','IMG_7762']].map(r=>'<a href="#'+r[0]+'"><span class="w">'+r[1]+'</span><span class="d">'+r[2]+'</span><img src="'+IMG(r[3])+'" alt=""><span class="ar">'+IC.arr+'</span></a>').join('')+
+  '</div></section>'}
+
+/* ---------- MAP ---------- */
+function mapPage(){
+  return pageHead('<b>MAP</b>General election, 8 February 2026','The 400 constituencies','Choose what to colour the map by, then tap a constituency. Bangkok is enlarged underneath.',null)+
+  '<section class="mapgrid"><div class="mapcol"><div class="ctl">'+
+  '<div class="lab">Colour by<div class="seg" role="group" aria-label="Colour by">'+[['winner','Winner'],['margin','How close'],['turnout','Turnout'],['share','Party support']].map(m=>'<button data-mode="'+m[0]+'" class="'+(ST.mode===m[0]?'on':'')+'">'+m[1]+'</button>').join('')+'</div></div>'+
+  '<label for="provSel">Province<select class="sel" id="provSel"><option value="">All of Thailand</option>'+Object.values(PROV).sort((a,b)=>a.en.localeCompare(b.en)).map(p=>'<option value="'+p.code+'"'+(ST.prov===p.code?' selected':'')+'>'+esc(p.en)+' ('+esc(p.th)+')</option>').join('')+'</select></label>'+
+  '<label for="shareSel" id="shareWrap"'+(ST.mode==='share'?'':' hidden')+'>Party<select class="sel" id="shareSel">'+SEATED.slice(0,8).map(p=>'<option value="'+esc(p.th)+'"'+(ST.share===p.th?' selected':'')+'>'+esc(p.en)+'</option>').join('')+'</select></label>'+
+  '</div><div class="mapwrap"><div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="reset" aria-label="Show all of Thailand" style="font-size:14px">ALL</button></div>'+mapSVG({id:'bigMap',mode:ST.mode,bkk:true})+'</div><div id="legend"></div>'+
+  '<div class="inset"><div class="cap"><span>Bangkok: 33 constituencies, enlarged</span><span>dashed box on the main map</span></div>'+bkkSVG({id:'bkMap',mode:ST.mode,labels:true})+'</div></div>'+
+  '<aside class="side" id="side" aria-live="polite"></aside></section>'}
+let VB=null,VB0=null;
+function setVB(target,anim=true){const svg=$('#bigMap');if(!svg)return;const from=VB||VB0;VB=target;if(!anim||matchMedia('(prefers-reduced-motion: reduce)').matches){svg.setAttribute('viewBox',target.join(' '));return}
+  const t0=performance.now(),D=420;const step=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);svg.setAttribute('viewBox',from.map((v,i)=>v+(target[i]-v)*e).join(' '));if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)}
+function fitBox(b,pad=.12){const w=b[2]-b[0],h=b[3]-b[1],ar=GEO.w/GEO.h;let W=w*(1+2*pad),H=h*(1+2*pad);if(W/H>ar)H=W/ar;else W=H*ar;const cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2;return [cx-W/2,cy-H/2,W,H]}
+function paintMaps(){const off=k=>{const c=CONS[k];if(ST.mode==='winner'&&ST.focus.size&&!ST.focus.has(c.w))return true;if(ST.prov&&c.p!==ST.prov)return true;return false};
+  $$('#bigMap .c, #bkMap .c').forEach(el=>{const k=el.dataset.id;el.setAttribute('fill',fillFor(k,ST.mode));el.classList.toggle('off',off(k));el.classList.toggle('sel',k===ST.sel)});
+  const bk=$('#bkMap');if(bk){$$('text',bk).forEach(t=>t.remove());const b=GEO.bkk;let s='';for(const k in b.cons){const c=b.cons[k];s+='<text x="'+c.c[0]+'" y="'+(c.c[1]+4)+'" text-anchor="middle" style="font:400 11px var(--f-dot);fill:'+txtOn(fillFor(k,ST.mode))+';pointer-events:none">'+CONS[k].n+'</text>'}bk.insertAdjacentHTML('beforeend',s)}
+  legend()}
+function legend(){const L=$('#legend');if(!L)return;
+  if(ST.mode==='winner'){const won=SEATED.filter(p=>p.cs>0);L.innerHTML='<div class="lg">'+won.map(p=>'<button data-focus="'+esc(p.th)+'" class="'+(ST.focus.has(p.th)?'on':(ST.focus.size?'dim':''))+'" aria-pressed="'+ST.focus.has(p.th)+'"><i style="background:'+p.c+'"></i>'+esc(p.en)+' <b>'+p.cs+'</b></button>').join('')+(ST.focus.size?'<button data-focus="__clear">Show all</button>':'')+'</div><p class="dot mute" style="font-size:13px;margin-top:8px">Tap a party to show only the seats it won.</p>';return}
+  let labs,cols;
+  if(ST.mode==='margin'){labs=['under 2 pts','2–5','5–10','10–20','20+ pts'];cols=RAMP}
+  else if(ST.mode==='turnout'){labs=['under 65%','65–70','70–75','75–80','80%+'];cols=[...RAMP].reverse()}
+  else{labs=['0–10%','10–20','20–30','30–40','40–50','50%+'];cols=[.1,.25,.42,.6,.8,1].map(a=>mixW(col(ST.share),a))}
+  L.innerHTML='<div class="ramp">'+labs.map((l,i)=>'<span><i style="background:'+cols[i]+'"></i>'+l+'</span>').join('')+'</div><p class="dot mute" style="font-size:13px;margin-top:8px">'+({margin:'Winning margin, in percentage points of valid votes. Darker means closer.',turnout:'Share of eligible voters who cast a constituency ballot.',share:'Share of valid constituency votes won by '+esc(en(ST.share))+' candidates.'}[ST.mode])+'</p>'}
+function side(){const S=$('#side');if(!S)return;
+  if(ST.sel){const c=CONS[ST.sel],p=PROV[c.p],w=c.cand[0],chk=c.ocr===1?['ok','Matches','The winner and every candidate’s count match the signed form ส.ส. 6/1.']:c.ocr===2?['warn','Differs','The winner matches the signed form, but at least one candidate’s count differs slightly. See the Data page.']:['miss','Not read','We have not yet read the signed form for this constituency.'];
+    S.innerHTML='<div class="eyebrow">'+esc(p.reg)+', constituency '+c.n+' of '+p.n+'</div><h2>'+esc(c.name)+'<small>'+esc(c.thn)+'</small></h2>'+
+    '<div class="winner"><span class="chipc" style="background:'+col(w[1])+'"></span><div><div class="who">'+esc(w[0])+'</div><div class="pt">'+esc(en(w[1]))+', won by '+fmt(c.gap)+' votes ('+f1(c.mar)+' pts)</div></div></div>'+
+    '<div class="cands">'+c.cand.map(x=>'<div class="r"><span class="n">'+esc(x[0])+'<small>'+esc(en(x[1]))+(PM[x[1]]?'':'')+'</small></span><span class="v">'+fmt(x[2])+' <small class="mute">('+f1(100*x[2]/c.va)+'%)</small></span><span class="b"><i style="width:'+(100*x[2]/c.cand[0][2])+'%;background:'+col(x[1])+'"></i></span></div>').join('')+(c.ncand>6?'<p class="dot mute" style="font-size:13px;margin-top:8px">'+(c.ncand-6)+' more candidates received fewer votes.</p>':'')+'</div>'+
+    '<div class="facts"><div><span>Eligible voters</span><b>'+fmt(c.el)+'</b></div><div><span>Turnout</span><b>'+f1(c.turn)+'%</b></div><div><span>Spoiled ballots</span><b>'+fmt(c.iv)+'</b></div><div><span>None of the above</span><b>'+fmt(c.nv)+'</b></div></div>'+
+    '<div class="mini-h"><span>Party-list vote here</span><span class="mute">top 5</span></div>'+c.pl.map(x=>'<div class="plrow"><i style="background:'+col(x[0])+'"></i><span>'+esc(en(x[0]))+'</span><b>'+f1(100*x[1]/c.plt)+'%</b></div>').join('')+
+    (c.pl[0][0]!==c.w?'<p style="margin-top:10px;font-size:14px" class="mute">Split result: the constituency went to <b style="color:var(--ink)">'+esc(en(c.w))+'</b>, but <b style="color:var(--ink)">'+esc(en(c.pl[0][0]))+'</b> won the party-list vote here.</p>':'')+
+    '<div class="check '+chk[0]+'"><span class="st">'+chk[1]+'</span><span>'+chk[2]+'</span></div>'+
+    '<p class="area"><b>Area covered</b><br>'+esc(c.area)+'</p>'+
+    '<div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn-o" data-back="1">← '+(ST.prov?'Back to '+esc(p.en):'Back to all')+'</button></div>';return}
+  if(ST.prov){const p=PROV[ST.prov],ks=IDS.filter(k=>CONS[k].p===ST.prov).sort((a,b)=>CONS[a].n-CONS[b].n),w={};ks.forEach(k=>w[CONS[k].w]=(w[CONS[k].w]||0)+1);
+    S.innerHTML='<div class="eyebrow">'+esc(p.reg)+', '+ks.length+' constituencies</div><h2>'+esc(p.en)+'<small>'+esc(p.th)+'</small></h2>'+
+    '<div class="facts"><div><span>Turnout</span><b>'+f1(100*p.tu/p.el)+'%</b></div><div><span>Eligible voters</span><b>'+fmt(p.el)+'</b></div></div>'+
+    '<div class="mini-h"><span>Seats won here</span></div>'+Object.entries(w).sort((a,b)=>b[1]-a[1]).map(x=>'<div class="plrow"><i style="background:'+col(x[0])+'"></i><span>'+esc(en(x[0]))+'</span><b>'+x[1]+'</b></div>').join('')+
+    '<div class="mini-h"><span>Constituencies</span><span class="mute">tap one</span></div><div class="prov-list">'+ks.map(k=>'<button data-sel="'+k+'"><span><i style="background:'+col(CONS[k].w)+'"></i>'+esc(p.en)+' '+CONS[k].n+'</span><span class="dot mute">'+fmt(CONS[k].gap)+'</span></button>').join('')+'</div>'+
+    '<div style="margin-top:20px"><button class="btn-o" data-back="all">← All of Thailand</button></div>';return}
+  const byP=Object.values(PROV).map(p=>{const ks=IDS.filter(k=>CONS[k].p===p.code),w={};ks.forEach(k=>w[CONS[k].w]=(w[CONS[k].w]||0)+1);return{p,lead:Object.entries(w).sort((a,b)=>b[1]-a[1])[0],n:ks.length}}).sort((a,b)=>a.p.en.localeCompare(b.p.en));
+  S.innerHTML='<div class="eyebrow">Whole country</div><h2>Thailand<small>ประเทศไทย</small></h2>'+
+  '<div class="facts"><div><span>Eligible voters</span><b>'+fmt(TOT.el)+'</b></div><div><span>Turnout</span><b>'+f1(TURN)+'%</b></div><div><span>Spoiled ballots</span><b>'+fmt(TOT.iv)+'</b></div><div><span>None of the above</span><b>'+fmt(TOT.nv)+'</b></div></div>'+
+  '<div class="mini-h"><span>Provinces</span><span class="mute">colour = party with most seats</span></div><div class="prov-list">'+byP.map(o=>'<button data-prov="'+o.p.code+'"><span><i style="background:'+col(o.lead[0])+'"></i>'+esc(o.p.en)+'</span><span class="dot mute">'+o.n+'</span></button>').join('')+'</div>'}
+function mapInit(){VB0=[0,0,GEO.w,GEO.h];VB=null;
+  if(ST.prov)setVB(fitBox(GEO.prov[ST.prov].b),false);
+  if(ST.sel&&!ST.prov&&CONS[ST.sel].p!=='10'){/* keep national view */}
+  paintMaps();side()}
+function selectCons(k){ST.sel=k;paintMaps();side();const s=$('#side');if(s&&innerWidth<1000)s.scrollIntoView({behavior:'smooth',block:'start'})}
+function selectProv(code){ST.prov=code;ST.sel=null;const s=$('#provSel');if(s)s.value=code;setVB(code?fitBox(GEO.prov[code].b):VB0);paintMaps();side()}
+
+/* ---------- PARTIES ---------- */
+function parties(){
+  const mx=Math.max(...SEATED.map(p=>p.cs+p.ls));
+  return pageHead('<b>PARTIES</b>2026, 500 seats','Who won what',SEATED.length+' parties won at least one seat. 400 seats are won in constituencies; the other 100 are shared out by party-list vote.','IMG_7766')+
+  '<section class="sec wrap" style="padding-top:56px"><div class="score"><div class="r h"><span></span><span>Party</span><span>Seats (solid = constituency, striped = list)</span><span class="lv">List votes</span><span class="sp">Const. + list</span><span style="text-align:right">Total</span></div>'+
+  SEATED.map(p=>'<div class="r"><span class="sw" style="background:'+p.c+'"></span><span class="nm">'+esc(p.en)+'<small>'+esc(p.th)+'</small></span><span class="sbw"><span class="sb" style="width:'+(100*(p.cs+p.ls)/mx)+'%"><i style="width:'+(100*p.cs/(p.cs+p.ls))+'%;background:'+p.c+'"></i><i class="l" style="width:'+(100*p.ls/(p.cs+p.ls))+'%;background-color:'+p.c+'"></i></span></span><span class="lv">'+fmt(p.lv)+'</span><span class="sp">'+p.cs+' + '+p.ls+'</span><span class="tot">'+(p.cs+p.ls)+'</span></div>').join('')+
+  '</div><p class="dot mute" style="font-size:14px;margin-top:16px">Source: Election Commission results files. Certified totals reported on 6 March 2026 gave Bhumjaithai 191, with one constituency pending.</p></section>'+
+  '<section class="band"><div class="wrap band-in"><div class="kick"><b>PLAY</b>Coalition calculator</div><h2 class="sec-title">Can you get to <em>251</em>?</h2><p class="mute" style="margin-top:14px;max-width:600px">Pick parties to add their seats together. This is arithmetic only. It says nothing about which parties would work together.</p>'+
+  '<div class="coal" style="margin-top:36px"><div class="pick" id="pick">'+SEATED.map(p=>'<button data-coal="'+esc(p.th)+'" class="'+(ST.coal.has(p.th)?'on':'')+'" aria-pressed="'+ST.coal.has(p.th)+'" style="background:'+(ST.coal.has(p.th)?'#fff':'#111')+';color:'+(ST.coal.has(p.th)?'#111':'#fff')+';border-color:#fff"><i style="background:'+p.c+'"></i>'+esc(p.en)+' <b>'+(p.cs+p.ls)+'</b></button>').join('')+'</div><div id="coalOut"></div></div></div></section>'}
+function coalOut(){const O=$('#coalOut');if(!O)return;const ps=SEATED.filter(p=>ST.coal.has(p.th)),n=ps.reduce((s,p)=>s+p.cs+p.ls,0);
+  O.innerHTML='<div class="meter" style="border-color:#fff;background:#1b1b1f">'+ps.map(p=>'<i style="width:'+((p.cs+p.ls)/5)+'%;background:'+p.c+'"></i>').join('')+'<span class="mk" style="border-color:var(--v-hi)"><span style="color:var(--v-hi)">251</span></span></div>'+
+  '<div class="coal-out" style="color:#fff">'+n+'<small style="color:var(--mute-dk)">of 500 seats</small></div><div class="verdict" style="color:'+(n>=251?'var(--v-hi)':'#fff')+'">'+(n===0?'Pick a party to start':n>=251?'That is a majority, with '+(n-251)+' to spare':(251-n)+' more seats needed')+'</div>'+
+  (n>=376?'<p class="mute" style="margin-top:10px">Above 375 seats is a three-quarters majority.</p>':'')+
+  (ps.length?'<button class="btn-o" data-coal="__clear" style="margin-top:24px;background:#111;color:#fff;border-color:#fff">Clear</button>':'')}
+
+/* ---------- PATTERNS ---------- */
+const REGS=['Bangkok','Central','East','West','North','Northeast','South'];
+function patterns(){
+  const top=SEATED.slice(0,6),mx=Math.ceil(Math.max(...top.map(p=>Math.max(p.cv,p.lv)))/2e6)*2e6;
+  const W=640,rowH=54,H=top.length*rowH+40,X=v=>150+(W-170)*v/mx;
+  let db='<svg class="chart-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Constituency votes compared with party-list votes for six parties">';
+  for(let v=0;v<=mx;v+=2e6){const x=X(v);db+='<line class="gl" x1="'+x+'" x2="'+x+'" y1="10" y2="'+(H-24)+'"/><text x="'+x+'" y="'+(H-6)+'" text-anchor="middle">'+(v/1e6)+'M</text>'}
+  top.forEach((p,i)=>{const y=24+i*rowH,a=X(p.cv),b=X(p.lv);db+='<text x="0" y="'+(y+5)+'" style="font:600 14px var(--f-body);fill:#111">'+esc(p.en)+'</text><line x1="'+Math.min(a,b)+'" x2="'+Math.max(a,b)+'" y1="'+y+'" y2="'+y+'" stroke="'+p.c+'" stroke-width="4"/><circle cx="'+a+'" cy="'+y+'" r="9" fill="'+p.c+'"/><rect x="'+(b-8)+'" y="'+(y-8)+'" width="16" height="16" fill="#fff" stroke="'+p.c+'" stroke-width="4"/>'});
+  db+='</svg>';
+  const reg=REGS.map(r=>{const ks=IDS.filter(k=>PROV[CONS[k].p].reg===r),w={};ks.forEach(k=>w[CONS[k].w]=(w[CONS[k].w]||0)+1);return{r,n:ks.length,w:Object.entries(w).sort((a,b)=>b[1]-a[1])}});
+  const bjt=top[0],pp=top[1];
+  return pageHead('<b>PATTERNS</b>2026','Where parties are strong','Patterns across places, drawn from official results. They describe constituencies and provinces, not individual voters.','IMG_7751')+
+  '<section class="sec wrap"><div class="two"><div><h2 class="h-sec">Voting for the person, or the party?</h2><p>Every voter had two ballots: one for a local candidate, one for a party list. '+esc(bjt.en)+' candidates drew '+mil(bjt.cv)+' votes, but its party list drew '+mil(bjt.lv)+'. For '+esc(pp.en)+' it was the other way round: '+mil(pp.cv)+' for candidates, '+mil(pp.lv)+' for the list.</p><div class="legend-inline" style="margin-top:22px"><span><svg width="16" height="16" style="vertical-align:-3px;margin-right:6px"><circle cx="8" cy="8" r="7" fill="#111"/></svg>constituency votes</span><span><svg width="16" height="16" style="vertical-align:-3px;margin-right:6px"><rect x="2" y="2" width="12" height="12" fill="#fff" stroke="#111" stroke-width="3"/></svg>party-list votes</span></div></div><div>'+db+'</div></div></section>'+
+  '<section class="sec wrap" style="border-top:2px solid var(--ink)"><div class="two"><div><h2 class="h-sec">Seats by region</h2><p>Constituency seats only. Each bar is one region; segments show which parties won its seats.</p></div><div class="reg">'+reg.map(o=>'<div class="r"><span>'+o.r+'</span><span class="bar">'+o.w.map(x=>'<i style="width:'+(100*x[1]/o.n)+'%;background:'+col(x[0])+'" data-tip2="'+esc(en(x[0]))+': '+x[1]+'"></i>').join('')+'</span><b>'+o.n+'</b></div>').join('')+'<div class="legend-inline">'+SEATED.filter(p=>p.cs>=4).map(p=>'<span><i style="background:'+p.c+'"></i>'+esc(p.en)+'</span>').join('')+'</div></div></div></section>'+
+  '<section class="sec wrap" style="border-top:2px solid var(--ink)"><div class="two"><div><h2 class="h-sec">Cities and countryside</h2><p>Each dot is a province. Across is how crowded it is (people per km², on a log scale); up is the share of constituency votes a party won there.</p><div class="lab dot mute" style="margin-top:22px;font-size:14px">Party</div><div class="pick" id="scPick" style="margin-top:8px">'+top.slice(0,5).map(p=>'<button data-sc="'+esc(p.th)+'" class="'+(ST.scP===p.th?'on':'')+'" aria-pressed="'+(ST.scP===p.th)+'"><i style="background:'+p.c+'"></i>'+esc(p.en)+'</button>').join('')+'</div><div id="scR" style="margin-top:22px"></div></div><div id="scatter"></div></div>'+
+  '<div class="aside-note"><img class="jig s3" src="'+IMG('IMG_7751')+'" alt=""><div><h4>A map can’t tell you who voted</h4><p>If a party does better in crowded provinces, that does not mean city people voted for it. It only describes places. To talk about people, you need surveys, and we label any estimate made from them as modeled.</p></div></div>'+
+  '<div class="aside-note" style="margin-top:0;border-top:0"><img class="bob" src="'+IMG('IMG_7759')+'" alt=""><div><h4>Age, income and education: coming later</h4><p>We have not found voter-survey data for 2026 that is large and open enough to estimate how different groups voted. When we do, it will appear here with its sample size and margin of error. <a href="#data">See what is missing</a>.</p></div></div></section>'}
+function scatter(){const el=$('#scatter');if(!el)return;const th=ST.scP,ps=Object.values(PROV),W=600,H=440,L=48,B=44,T=10,R=10;
+  const pts=ps.map(p=>({p,x:Math.log10(p.dens),y:100*(p.cv[th]||0)/p.va}));const x0=Math.floor(Math.min(...pts.map(d=>d.x))*2)/2,x1=Math.ceil(Math.max(...pts.map(d=>d.x))*2)/2,y1=Math.ceil(Math.max(...pts.map(d=>d.y))/10)*10;
+  const X=v=>L+(W-L-R)*(v-x0)/(x1-x0),Y=v=>T+(H-T-B)*(1-v/y1);
+  let s='<svg class="chart-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Scatter of '+esc(en(th))+' vote share against population density by province">';
+  for(let v=0;v<=y1;v+=10)s+='<line class="gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text x="'+(L-8)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+v+'%</text>';
+  for(let v=Math.ceil(x0);v<=x1;v++)s+='<text x="'+X(v)+'" y="'+(H-22)+'" text-anchor="middle">'+fmt(Math.pow(10,v))+'</text>';
+  s+='<text x="'+(L+(W-L-R)/2)+'" y="'+(H-2)+'" text-anchor="middle">people per km²</text>';
+  pts.forEach(d=>{s+='<circle cx="'+X(d.x)+'" cy="'+Y(d.y)+'" r="'+(4+Math.sqrt(d.p.n)*1.4)+'" fill="'+col(th)+'" fill-opacity=".72" stroke="#fff" stroke-width="1.2"><title>'+esc(d.p.en)+': '+f1(d.y)+'%</title></circle>'});
+  const bk=pts.find(d=>d.p.code==='10');s+='<text x="'+(X(bk.x)-12)+'" y="'+(Y(bk.y)-14)+'" text-anchor="end" style="fill:#111;font-size:13px">Bangkok</text>';
+  el.innerHTML=s+'</svg>';
+  const xs=pts.map(d=>d.x),ys=pts.map(d=>d.y),mx=xs.reduce((a,b)=>a+b)/xs.length,my=ys.reduce((a,b)=>a+b)/ys.length;let a=0,b=0,c=0;xs.forEach((x,i)=>{a+=(x-mx)*(ys[i]-my);b+=(x-mx)**2;c+=(ys[i]-my)**2});const r=a/Math.sqrt(b*c);
+  $('#scR').innerHTML='<div class="big-pair" style="margin-top:0"><div><span>correlation (r)</span><b style="color:'+col(th)+'">'+(r>=0?'+':'')+f1(r,2)+'</b></div></div><p class="mute" style="margin-top:10px;font-size:15px">'+(Math.abs(r)<.2?'Almost no link between density and '+esc(en(th))+' support.':(r>0?esc(en(th))+' tends to do better in more crowded provinces.':esc(en(th))+' tends to do better in less crowded provinces.'))+' Density figures are for 2024.</p>'}
+
+/* ---------- COMPARE ---------- */
+function compare(){const y=DATA.y2023,s26={},link={'Move Forward':"People's Party"};SEATED.forEach(p=>s26[p.en]=p.cs+p.ls);
+  const cOf=n=>{const q=SEATED.find(p=>p.en===n);return q?q.c:'#888'};const rows=y.seats.map(r=>({a:r[0],b:link[r[0]]||r[0],v23:r[1],v26:s26[link[r[0]]||r[0]]||0,c:cOf(link[r[0]]||r[0])}));
+  rows.push({a:null,b:'Kla Tham',v23:null,v26:s26['Kla Tham'],c:PM['กล้าธรรม'].c});
+  const W=640,H=520,T=40,B=20,Y=v=>T+(H-T-B)*(1-v/200),xa=170,xb=W-170;
+  let s='<svg class="chart-svg slope" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Seats in 2023 and 2026">';
+  s+='<text class="yr" x="'+xa+'" y="22" text-anchor="middle">2023</text><text class="yr" x="'+xb+'" y="22" text-anchor="middle">2026</text>';
+  [0,50,100,150,200].forEach(v=>s+='<line class="gl" x1="'+(xa-10)+'" x2="'+(xb+10)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/>');
+  const lab=(arr,side)=>{const o=arr.slice().sort((p,q)=>p.y-q.y);for(let i=1;i<o.length;i++)if(o[i].y-o[i-1].y<18)o[i].y=o[i-1].y+18;return o};
+  const L=lab(rows.filter(r=>r.v23!=null).map(r=>({r,y:Y(r.v23)}))),R=lab(rows.map(r=>({r,y:Y(r.v26)})));
+  rows.forEach(r=>{if(r.v23!=null)s+='<line x1="'+xa+'" y1="'+Y(r.v23)+'" x2="'+xb+'" y2="'+Y(r.v26)+'" stroke="'+r.c+'" stroke-width="4"/><circle cx="'+xa+'" cy="'+Y(r.v23)+'" r="7" fill="'+r.c+'"/>';s+='<circle cx="'+xb+'" cy="'+Y(r.v26)+'" r="7" fill="'+r.c+'"/>'});
+  L.forEach(o=>s+='<text x="'+(xa-16)+'" y="'+(o.y+5)+'" text-anchor="end">'+esc(o.r.a)+' <tspan class="v">'+o.r.v23+'</tspan></text>');
+  R.forEach(o=>s+='<text x="'+(xb+16)+'" y="'+(o.y+5)+'"><tspan class="v">'+o.r.v26+'</tspan> '+esc(o.r.b)+(o.r.a&&o.r.a!==o.r.b?'*':'')+(o.r.v23==null?' (new)':'')+'</text>');
+  s+='</svg>';
+  return pageHead('<b>COMPARE</b>2023 → 2026','What changed','Two elections three years apart, with the same voting system: 400 constituency seats and 100 party-list seats.','IMG_7755')+
+  '<section class="sec wrap"><div class="two"><div><h2 class="h-sec">Seats, then and now</h2><p>The five largest parties of 2023, plus the biggest newcomer of 2026. Total seats out of 500.</p><p class="dot mute" style="margin-top:18px;font-size:14px">* Move Forward was dissolved by court order in 2024. Most of its MPs moved to the People’s Party, so we draw them as one line.</p>'+
+  '<div class="big-pair" style="margin-top:36px"><div><span>Turnout 2023</span><b>'+f1(y.turnout,2)+'%</b></div><div><span>Turnout 2026</span><b class="vi">'+f1(TURN,2)+'%</b></div></div><p class="dot mute" style="font-size:13px;margin-top:10px">2023: official figure. 2026: our sum of constituency-ballot turnout across 400 constituencies.</p></div><div>'+s+'</div></div>'+
+  '<div class="aside-note"><img class="jig" src="'+IMG('IMG_7754')+'" alt=""><div><h4>What we can’t compare yet</h4><p>We have not yet loaded constituency-level results for 2023, so there is no seat-by-seat swing map. Constituency boundaries also changed between the two elections. Both boundary maps are in hand, so a like-for-like comparison is next.</p></div></div></section>'}
+
+/* ---------- DATA ---------- */
+const YRS=['2011','2019','2023','2026'];
+const MXR=[['res','National results'],['cons','Constituency results'],['form','Signed result forms (ส.ส. 6/1)'],['pu','Polling-station results (ส.ส. 5/18)'],['bnd','Constituency boundaries'],['pbnd','Province boundaries'],['pop','Population by area'],['svy','Voter surveys with raw data'],['exit','Exit polls']];
+const MKS={ok:['● Found','mk-ok'],part:['◐ Partly','mk-part'],gap:['▲ Delayed','mk-gap'],miss:['○ Not found','mk-miss'],unk:['– Not checked','mk-miss']};
+const L_={e69:['election69 project: ECT results files with checksums','https://github.com/jjpeechaphand/election69'],ocr:['election-69-OCR-result: signed forms read by OCR','https://github.com/killernay/election-69-OCR-result'],km:['Thai-ECT-election-map (MIT)','https://github.com/KittapatR/Thai-ECT-election-map'],star:['Reuters via The Star, 6 Mar 2026','https://www.thestar.com.my/aseanplus/aseanplus-news/2026/03/06/election-results-certified'],pe:['The Phuket Express, 25 May 2023','https://thephuketexpress.com/2023/05/25/thailand-official-general-election-results-announced/'],us:['US-ASEAN Business Council','https://usasean.org/article/thai-election-commission-announces-official-election-results'],kh:['iLaw via Khaosod English, 9 Feb 2026','https://www.khaosodenglish.com/politics/2026/02/09/ilaw-urges-rapid-release-of-polling-station-vote-data/'],an:['ANFREL mission report, Jun 2026','https://anfrel.org/questions-of-trust-demands-for-accountability-anfrel-mission-report-thailand-2026-general-election-referendum/'],info:['Infoquest, 2023','https://www.infoquest.co.th/?p=302726'],ilaw:['iLaw, 2023','https://www.ilaw.or.th/articles/5702'],hdx:['OCHA boundaries on HDX','https://data.humdata.org/m/dataset/cod-ab-tha'],dopa:['DOPA population on data.go.th','https://data.go.th/en/dataset/dopa-star'],smu:['SMU data repository','https://researchdata.smu.edu.sg/articles/dataset/Data_from_Voting_for_Winners_and_Losers_in_a_Hybrid_Regime_How_Thailand_s_2023_Election_Shaped_Voter_Opinion/29231744'],bp:['Bangkok Post, 2023','https://bangkokpost.com/thailand/politics/2570340/exit-poll-shows-pheu-thai-move-forward-leading-vote'],pt:['Post Today, 2019','https://www.posttoday.com/politics/584396'],tsk:['Thansettakij, poll blackout','https://www.thansettakij.com/politics/650451']};
+const MX={
+'res|2026':['ok','Party seat and vote totals from the Election Commission’s results files. Certified totals were reported on 6 March 2026.',['e69','star']],
+'res|2023':['part','Seat totals for the five largest parties and official turnout (75.71%), confirmed by two reports. Party-list vote counts differ between sources, so we leave them out for now.',['us','pe']],
+'cons|2026':['ok','All 400 constituencies, every candidate. Copied from ECT result files and cross-checked against the signed forms: '+XC.agree+' of '+XC.ocr_files+' winners match.',['e69','ocr']],
+'cons|2023':['part','The ECT published a results spreadsheet, but our tools could not reach the ECT site to download it.',[]],
+'form|2026':['ok',XC.ocr_files+' of 400 signed forms have been read by OCR. '+XC.ndiff+' candidate counts differ slightly from the results files. The forms for '+XC.missing.length+' constituencies are not yet read.',['ocr']],
+'pu|2026':['gap','The rule requiring polling-station results within five days was changed to “as soon as possible”. ANFREL asked for polling-station data in June 2026.',['kh','an']],
+'pu|2023':['part','The ECT said it posted forms 5/18 online on 20 May 2023. File format unconfirmed.',['info','ilaw']],
+'pu|2019':['part','Unofficial and official scores differed because of data-entry errors in the ECT app (iLaw).',['ilaw']],
+'bnd|2026':['ok','Rebuilt from the official announcements in the Royal Gazette. MIT licence. Approximate, not a legal reference.',['km']],
+'bnd|2023':['ok','Same project, 2023 edition. MIT licence. Approximate.',['km']],
+'bnd|2019':['miss','No open source found yet.',[]],'bnd|2011':['miss','No open source found yet.',[]],
+'svy|2023':['part','Ricks and Hicken two-wave survey. Access on request; licence and sample size not stated on the repository page.',['smu']],
+'svy|2026':['miss','No open voter survey with raw data found.',[]],'svy|2019':['miss','None found.',[]],'svy|2011':['miss','None found.',[]],
+'exit|2023':['part','Nation Group published an exit poll. No sample size or raw data found.',['bp']],
+'exit|2019':['part','Suan Dusit reported a large post-election survey. No method or raw data found.',['pt']],
+'exit|2026':['miss','No exit poll found. Publishing poll results was banned from 1 to 8 February 2026.',['tsk']],
+'exit|2011':['miss','Nothing found.',[]]};
+YRS.forEach(y=>{MX['pbnd|'+y]=['ok','OCHA province boundaries, CC BY-IGO.',['hdx']];MX['pop|'+y]=['part','DOPA registered population is open by sub-district. No source gives population by constituency yet.',['dopa']]});
+const mx=(r,y)=>MX[r+'|'+y]||['unk','We have not checked this yet.',[]];
+function dataPage(){const [r,y]=ST.cell.split('|'),c=mx(r,y),row=MXR.find(m=>m[0]===r);
+  const diffs=XC.diffs.slice().sort((a,b)=>Math.abs(b[2]-b[3])-Math.abs(a[2]-a[3]));
+  const nm=k=>CONS[k].name;
+  return pageHead('<b>DATA</b>Audit of 10 November 2026','Receipts','What we have, what is missing, and every place two official records disagree.','IMG_7760')+
+  '<section class="sec wrap"><h2 class="h-sec">What exists, election by election</h2><p style="margin-top:12px;color:var(--mute);max-width:620px">Tap any cell to see where it comes from.</p><div class="tally" style="margin-top:28px"><table><thead><tr><th>Dataset</th>'+YRS.map(y=>'<th>'+y+'</th>').join('')+'</tr></thead><tbody>'+
+  MXR.map(m=>'<tr><th scope="row">'+m[1]+'</th>'+YRS.map(yy=>{const s=mx(m[0],yy)[0];return '<td class="'+(ST.cell===m[0]+'|'+yy?'on':'')+'"><button data-cell="'+m[0]+'|'+yy+'"><span class="'+MKS[s][1]+'">'+MKS[s][0]+'</span></button></td>'}).join('')+'</tr>').join('')+'</tbody></table></div>'+
+  '<div class="cell-note"><div><div class="kick"><span class="'+MKS[c[0]][1]+'">'+MKS[c[0]][0]+'</span></div><h4 style="margin-top:10px">'+row[1]+', '+y+'</h4><p style="margin-top:10px">'+c[1]+'</p></div><div>'+(c[2].length?'<div class="dot mute" style="font-size:14px;margin-bottom:8px">Sources</div>'+c[2].map(k=>'<a href="'+L_[k][1]+'" target="_blank" rel="noopener">'+esc(L_[k][0])+' ↗</a>').join(''):'<p class="mute">No source yet.</p>')+'</div></div>'+
+  '<p class="dot mute" style="font-size:14px;margin-top:18px">Our research tools could not open the ECT website, data.go.th or the National Statistical Office directly. Anything marked “Partly” still needs a person to check the original.</p></section>'+
+  '<section class="band"><div class="wrap band-in"><div class="kick"><b>CROSS-CHECK</b>2026 constituency results</div><h2 class="sec-title">Two official records, <em>'+XC.ndiff+'</em> small differences</h2><p class="mute" style="margin-top:16px;max-width:720px">We compared the vote counts on the ECT’s results website with the signed constituency forms (ส.ส. 6/1), which a volunteer project has read by OCR. Every winner matches. '+XC.ndiff+' candidate counts in '+XC.ndiffcons+' constituencies do not. OCR can misread digits, so each difference needs checking against the original PDF before anyone draws a conclusion.</p>'+
+  '<div class="scroll-x" style="margin-top:32px"><table class="diff" style="color:#fff"><thead><tr><th style="color:var(--mute-dk);border-color:#fff">Constituency</th><th style="color:var(--mute-dk);border-color:#fff">Candidate</th><th class="r" style="color:var(--mute-dk);border-color:#fff">Results website</th><th class="r" style="color:var(--mute-dk);border-color:#fff">Signed form</th><th class="r" style="color:var(--mute-dk);border-color:#fff">Difference</th></tr></thead><tbody>'+
+  diffs.map(d=>'<tr><td style="border-color:#2a2a2e">'+esc(nm(d[0]))+'</td><td class="th" style="border-color:#2a2a2e">'+esc(d[1])+'</td><td class="r" style="border-color:#2a2a2e">'+fmt(d[2])+'</td><td class="r" style="border-color:#2a2a2e">'+fmt(d[3])+'</td><td class="r" style="border-color:#2a2a2e;color:var(--v-hi)">'+(d[3]-d[2]>0?'+':'')+fmt(d[3]-d[2])+'</td></tr>').join('')+'</tbody></table></div>'+
+  '<p class="foot-note">Forms not yet read: '+XC.missing.map(k=>esc(nm(k))).join(', ')+'. Re-votes were reported in Bangkok 15 and Nan 1 on 22 February 2026, which may explain why their forms are not in the set.</p></div></section>'+
+  '<section class="sec wrap"><div class="two"><div><h2 class="h-sec">Sources and licences</h2><p>Public does not always mean free to reuse. Each source keeps its own terms.</p></div><ul class="src">'+
+  [['e69','Results files copied from the ECT site on 31 Oct 2026, with SHA-256 checksums.','Terms not stated'],['ocr','Signed forms ส.ส. 6/1 read with cross-checked OCR.','Free use, attribute'],['km','Constituency boundaries for 2023 and 2026.','MIT'],['hdx','Province boundaries.','CC BY-IGO'],['star','2026 certified seat totals.','News'],['pe','2023 seats and turnout.','News']].map(s=>'<li><a href="'+L_[s[0]][1]+'" target="_blank" rel="noopener">'+esc(L_[s[0]][0])+'</a><span class="lic">'+s[2]+'</span><small>'+s[1]+'</small></li>').join('')+'</ul></div></section>'}
+
+/* ---------- LAB ---------- */
+function lab(){const c=CONS['30_3'];
+  return pageHead('<b>RESEARCHERS</b>For students, journalists and academics','The lab','Tools for going deeper. They are in design now, and each will record its data version, method and settings with every result.','IMG_7750')+
+  '<section class="sec wrap"><div class="two"><div class="menu-board"><ul>'+
+  [['Constituency DNA','Group constituencies by their traits and see which ones look alike.'],['Ask the Atlas','Ask a question in plain language. See the query and the source.'],['Document reader','Turn scanned result forms like ส.ส. 5/18 into checked tables.'],['Pattern finder','Flag unusual turnout or ballot counts for a closer look. A flag is never proof of wrongdoing.'],['Seat simulator','Change vote shares and see how 500 seats would be shared out.'],['Methods library','Plain explanations of MRP, ecological inference and more.']].map(t=>'<li><span class="t">'+t[0]+'</span><span class="ld"></span><span class="s">in design</span><p>'+t[1]+'</p></li>').join('')+'</ul></div>'+
+  '<div><h2 class="h-sec">Open data, one record at a time</h2><p>Every record will carry its source and version. Here is what one constituency looks like.</p><div class="code" style="margin-top:24px">{\n  <span class="k">"id"</span>: "2026-30-03",\n  <span class="k">"province"</span>: "'+esc(PROV['30'].en)+'",\n  <span class="k">"constituency"</span>: 3,\n  <span class="k">"winner_party"</span>: "'+esc(en(c.w))+'",\n  <span class="k">"margin_votes"</span>: '+c.gap+',\n  <span class="k">"turnout_pct"</span>: '+f1(c.turn,2)+',\n  <span class="k">"source"</span>: "ECT results files",\n  <span class="k">"checked_against"</span>: "form 6/1"\n}</div><p class="dot mute" style="font-size:14px;margin-top:14px">Downloads and an API will open once the data audit is complete.</p></div></div></section>'}
+
+/* ---------- router ---------- */
+const PAGES={'':home,map:mapPage,parties,patterns,compare,data:dataPage,lab};
+const NAV=[['map','Map'],['parties','Parties'],['patterns','Patterns'],['compare','Compare'],['data','Data']];
+function header(r){$('#nav').innerHTML=NAV.map(n=>'<a href="#'+n[0]+'" class="'+(r===n[0]?'on':'')+'">'+n[1]+'</a>').join('')+'<a href="#lab" class="res'+(r==='lab'?' on':'')+'">For researchers</a>'}
+function route(){let r=location.hash.slice(1);if(!(r in PAGES))r='';header(r);closeDrawer();
+  $('#main').innerHTML=PAGES[r]();window.scrollTo(0,0);tip.style.opacity=0;
+  document.title=r?(r==='lab'?'Researchers':r[0].toUpperCase()+r.slice(1))+' | Thai Electoral Atlas':'Thai Electoral Atlas';
+  if(r==='map')mapInit();if(r==='parties')coalOut();if(r==='patterns')scatter()}
+function openDrawer(){const d=$('#drawer');d.hidden=false;d.querySelector('nav').innerHTML='<a href="#">Home</a>'+NAV.map(n=>'<a href="#'+n[0]+'">'+n[1]+'</a>').join('')+'<a href="#lab">Researchers</a>';$('#drawer .x').focus();document.body.style.overflow='hidden'}
+function closeDrawer(){const d=$('#drawer');if(d&&!d.hidden){d.hidden=true;document.body.style.overflow=''}}
+document.addEventListener('click',e=>{const t=e.target;
+  if(t.closest('.menu-btn'))return openDrawer();
+  if(t.closest('#drawer .x'))return closeDrawer();
+  if(t.closest('#drawer a'))return closeDrawer();
+  const c=t.closest('.c[data-id]');
+  if(c){const k=c.dataset.id;if(c.closest('#homeMap')){ST.sel=k;ST.prov='';location.hash='map';return}if($('#bigMap'))selectCons(k);return}
+  const m=t.closest('[data-mode]');if(m){ST.mode=m.dataset.mode;$$('[data-mode]').forEach(b=>b.classList.toggle('on',b===m));$('#shareWrap').hidden=ST.mode!=='share';paintMaps();return}
+  const f=t.closest('[data-focus]');if(f){const v=f.dataset.focus;if(v==='__clear')ST.focus.clear();else ST.focus.has(v)?ST.focus.delete(v):ST.focus.add(v);paintMaps();return}
+  const z=t.closest('[data-z]');if(z){const v=VB||VB0;if(z.dataset.z==='reset'){ST.prov='';$('#provSel').value='';ST.sel=null;setVB(VB0);paintMaps();side();return}const k=z.dataset.z==='in'?.7:1/.7,cx=v[0]+v[2]/2,cy=v[1]+v[3]/2,W=Math.min(VB0[2]*1.2,v[2]*k),H=Math.min(VB0[3]*1.2,v[3]*k);setVB([cx-W/2,cy-H/2,W,H]);return}
+  const s=t.closest('[data-sel]');if(s){selectCons(s.dataset.sel);return}
+  const p=t.closest('[data-prov]');if(p){selectProv(p.dataset.prov);return}
+  const b=t.closest('[data-back]');if(b){if(b.dataset.back==='all'){selectProv('')}else{ST.sel=null;paintMaps();side()}return}
+  const co=t.closest('[data-coal]');if(co){const v=co.dataset.coal;if(v==='__clear')ST.coal.clear();else ST.coal.has(v)?ST.coal.delete(v):ST.coal.add(v);$$('#pick [data-coal]').forEach(x=>{const on=ST.coal.has(x.dataset.coal);x.classList.toggle('on',on);x.setAttribute('aria-pressed',on);x.style.background=on?'#fff':'#111';x.style.color=on?'#111':'#fff'});coalOut();return}
+  const sc=t.closest('[data-sc]');if(sc){ST.scP=sc.dataset.sc;$$('[data-sc]').forEach(x=>{x.classList.toggle('on',x===sc);x.setAttribute('aria-pressed',x===sc)});scatter();return}
+  const ce=t.closest('[data-cell]');if(ce){ST.cell=ce.dataset.cell;const y=scrollY;$('#main').innerHTML=dataPage();window.scrollTo(0,y);return}
+});
+document.addEventListener('change',e=>{if(e.target.id==='provSel')selectProv(e.target.value);if(e.target.id==='shareSel'){ST.share=e.target.value;paintMaps()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+window.addEventListener('hashchange',route);
+route();
+})();
+
+</script>
+
+</body>
+</html>
