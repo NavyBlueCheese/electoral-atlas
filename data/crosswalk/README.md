@@ -7,3 +7,13 @@
 
 Sources: sub-district boundaries from OpenGISData-Thailand (CC BY 4.0); constituency boundaries from Thai-ECT-election-map (MIT), which are approximate and not a legal reference.
 Method: area intersection in WGS84 coordinates, built by `scripts/xwalk_spatial.py`.
+
+## Version 3 (`tambon_constituency_2569_v3.csv`)
+
+Used for the town/country figures. Each sub-district is placed using the official constituency descriptions
+published with the ECT results (district lists with "เฉพาะ"/"ยกเว้น" sub-district clauses), matched on DOPA
+codes and names (kongvut/thai-province-data, MIT). 7,423 sub-districts are placed this way; 16 that the
+descriptions cannot place fall back to area weights. Built by `scripts/build_crosswalk_v3.py`.
+
+Known limitation: the age figures (`data/age/`) were aggregated with the area crosswalk above, before version 3
+existed. In split urban districts this can move a few thousand people between neighbouring constituencies.
