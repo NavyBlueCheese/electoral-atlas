@@ -1,4 +1,4 @@
-# Group-vote estimation engine (experimental, not used on the site)
+# Results-only estimation engine (experimental, not used on the site)
 
 These scripts try to estimate how each age group voted in each constituency from aggregate data only: official results plus the age make-up of each constituency (ecological inference). They are published for transparency. **The site does not show their output.**
 
@@ -12,7 +12,7 @@ These scripts try to estimate how each age group voted in each constituency from
 
 In simulations the engine beat the naive baseline when age groups vote very differently. On the real 2026 data it did not give stable answers. Within a province, the share of young adults differs between constituencies by only about two percentage points. That is too little variation to separate age groups. Across ten reasonable settings, the estimated People's Party share among 18–29s ranged from about 5% to 50%. The national pattern (younger areas lean People's Party, older areas lean Bhumjaithai and Pheu Thai) is mostly regional, which is the ecological fallacy at work.
 
-The site therefore shows observed area patterns only (`scripts/age_patterns.py`). Group estimates will be added when survey microdata or full poll cross-tabulations are available to combine with the official results.
+The site instead takes the age differences from published polls and fits them to each constituency's official result (`scripts/age_groups.py`), and shows the observed area patterns as a check (`scripts/age_patterns.py`).
 
 ## Running
 

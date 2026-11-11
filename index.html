@@ -509,6 +509,41 @@ select.sel{font:500 15px/1.2 var(--f-body);border:2px solid var(--ink);border-ra
 .akey i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border:1px solid #CFCFD6}
 @media (max-width:600px){.qchart{gap:6px}.qlab{font-size:11px}.qlab b{font-size:13px}.dvr,.dvh,.dvax{grid-template-columns:76px minmax(0,1fr) 84px}.dvr .n{font-size:13px}.dvr .v{font-size:15px}}
 .h-sec + p.ink,p.ink{color:var(--ink)}
+/* ---- who voted for whom, modelled ---- */
+.lg span{display:inline-flex;align-items:center;gap:8px;font:500 13.5px/1 var(--f-body);border:1.5px solid var(--line);padding:7px 10px;background:#fff}
+.lg span i{width:12px;height:12px;display:inline-block}
+.ivb u{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1px;background:#9A9AA8;text-decoration:none}
+.sidelede{margin-top:16px;font-size:16px;line-height:1.5}
+.sidelede b{font-weight:600}
+.wtally{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.wtally span{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--ink);padding:8px 10px;font-size:14px;font-weight:500}
+.wtally i{width:12px;height:12px;display:inline-block}
+.wtally b{font:800 18px/1 var(--f-big);letter-spacing:-.04em}
+.wtally small{font:400 12px/1 var(--f-dot);color:var(--mute)}
+.agesw{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:2px solid var(--ink);margin-top:10px}
+.agesw button{display:flex;flex-direction:column;gap:6px;align-items:flex-start;padding:10px;border-right:1px solid var(--line);text-align:left;min-height:64px;background:#fff}
+.agesw button:last-child{border-right:0}
+.agesw button span{font:800 15px/1 var(--f-big);letter-spacing:-.04em}
+.agesw button b{font-size:13px;font-weight:600;line-height:1.15}
+.agesw button.on{background:var(--v-wash);box-shadow:inset 0 -4px 0 var(--v)}
+@media (max-width:420px){.agesw{grid-template-columns:repeat(2,minmax(0,1fr))}.agesw button:nth-child(2){border-right:0}.agesw button:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+.hw{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:34px;border-top:2px solid var(--ink)}
+.hw>div{padding:22px 22px 8px 0;border-right:1px solid var(--line);margin-right:22px}
+.hw>div:last-child{border-right:0;margin-right:0}
+.hw b{display:block;font:800 clamp(44px,5vw,72px)/.9 var(--f-big);letter-spacing:-.08em;color:var(--v)}
+.hw h3{font:800 22px/1.05 var(--f-big);letter-spacing:-.04em;text-transform:uppercase;margin-top:14px}
+.hw p{margin-top:10px;color:var(--mute);font-size:15px}
+.hw .hw-r{background:var(--ink);color:#fff;padding:22px;margin-top:-2px}
+.hw .hw-r b{color:var(--v-hi)}
+.hw .hw-r p{color:var(--mute-dk)}
+@media (max-width:900px){.hw{grid-template-columns:repeat(2,minmax(0,1fr))}.hw>div:nth-child(2){border-right:0;margin-right:0}}
+@media (max-width:560px){.hw{grid-template-columns:minmax(0,1fr)}.hw>div{border-right:0;margin-right:0;border-bottom:1px solid var(--line)}}
+.mini-t{font:800 22px/1.1 var(--f-big);letter-spacing:-.04em;text-transform:uppercase;margin-bottom:12px}
+.asm{list-style:none;padding:0;margin:0}
+.asm li{padding:10px 0 10px 28px;border-bottom:1px solid var(--line);position:relative;font-size:15px}
+.asm li::before{content:"✕";position:absolute;left:2px;top:10px;color:var(--v);font-weight:700}
+.gchips.sm{margin-top:16px}
+.gchips.sm button{font-size:14px;padding:9px 12px;min-height:40px}
 
 </style>
 <header class="hd"><div class="wrap">
@@ -528,7 +563,7 @@ select.sel{font:500 15px/1.2 var(--f-body);border:2px solid var(--ink);border-ra
 </div></footer>
 <div id="tip" role="tooltip"></div>
 <script src="data.js"></script>
-<script src="age.js"></script>
+<script src="groups.js"></script><script src="age.js"></script>
 <script>
 /* Thai Electoral Atlas: site app */
 (function(){
@@ -613,11 +648,11 @@ function home(){
   return '<section class="hero wrap">'+
   '<h1 class="hl" aria-label="Every seat, every ballot, mapped"><span class="l1">Every seat<span class="ic sp jig">'+IC.spark+'</span><span class="ic gv jig s2">'+IC.gavel+'</span><span class="ic tk jig s3">'+IC.tick+'</span></span><span class="box">Every ballot</span><span class="l3"><span class="ic bx jig s3">'+IC.ballot+'</span>Mapped<span class="ic sp2 jig s2">'+IC.spark+'</span></span></h1>'+
   '<p class="lede">Thai Electoral Atlas is an independent, nonpartisan map of Thailand’s elections. Official results in plain language, with every number traced back to the Election Commission’s own records.</p>'+
-  '<div class="cta-row"><a class="arrow-link" href="#who">'+IC.arrow+'<span>DID OLDER PLACES VOTE DIFFERENTLY?</span></a><a class="arrow-link" href="#map">'+IC.arrow+'<span>EXPLORE THE 2026 RESULTS</span></a></div>'+
+  '<div class="cta-row"><a class="arrow-link" href="#who">'+IC.arrow+'<span>SEE HOW EACH AGE GROUP VOTED</span></a><a class="arrow-link" href="#map">'+IC.arrow+'<span>EXPLORE THE 2026 RESULTS</span></a></div>'+
   '<img class="mascot bob" src="'+IMG('IMG_7752')+'" alt="">'+'<img class="cup bob" style="animation-delay:-1.4s" src="'+IMG('IMG_7748')+'" alt="">'+
   '</section>'+
   '<div class="mq" aria-hidden="true"><div class="track">'+mq+mq+'</div></div>'+
-  '<section class="wrap teaser"><div class="kick"><b>START WITH AGE</b>The Demographic Voting Atlas</div><h2 class="sec-title">Did places with more <em>young</em> people vote differently?</h2><p class="mute" style="margin-top:14px;max-width:620px">Pick a group. See how the constituencies where they are most common voted, first across the country, then next to their neighbours. Spoiler: region matters more than age.</p><div class="big-chips">'+(AG?AG.groups:['under 30','under 45','60 and over']).map((g,i)=>'<button data-wgo="'+i+'"><span>'+(['U30','U45','60+'][i])+'</span><small>'+g+'</small>'+IC.arr+'</button>').join('')+'</div></section>'+
+  '<section class="wrap teaser"><div class="kick"><b>START HERE</b>The Demographic Voting Atlas</div><h2 class="sec-title">How did <em>your</em> age group vote?</h2><p class="mute" style="margin-top:14px;max-width:620px">Pick an age group and see its likely vote in every constituency. Estimates combine the official count with the age gaps found in national polls, and every figure comes with a range.</p><div class="big-chips">'+['18–29','30–44','45–59','60+'].map((g,i)=>'<button data-wgo="'+i+'"><span>'+g+'</span><small>'+['first and young voters','working age','middle age','older voters'][i]+'</small>'+IC.arr+'</button>').join('')+'</div></section>'+
   '<section class="band"><div class="wrap band-in"><div class="kick"><b>RESULT</b>General election, 8 February 2026</div>'+
   '<h2 class="sec-title">'+esc(LEAD.en)+' won <em>'+(LEAD.cs+LEAD.ls)+'</em> of 500 seats. Nobody won a majority alone.</h2>'+
   '<div class="res-grid"><div><div class="waffle" aria-label="500 seats by party">'+waffle+'<span class="maj" style="left:calc(50.2% - 1px)"><span>251 FOR A MAJORITY</span></span></div>'+
@@ -641,7 +676,7 @@ function home(){
   '<div class="ln ruled"><span class="lb">Forms not yet read</span><span class="ld"></span><span class="vl">'+XC.missing.length+'</span></div>'+
   '<img class="peek jig s3" src="'+IMG('IMG_7760')+'" alt=""></div></div></section>'+
   '<section class="sec wrap"><div class="kick"><b>START HERE</b></div><div class="idx" style="margin-top:28px">'+
-  [['who','Age and the vote','How places with more young or older voters voted, and what that can and can’t tell us.','IMG_7752'],['map','Results','Every constituency, every candidate, every vote count.','IMG_7764'],['parties','Parties','Seats, votes, and a coalition calculator you can play with.','IMG_7766'],['patterns','Patterns','Where each party is strong, and what the map can’t tell you.','IMG_7753'],['compare','Compare','How 2026 differs from 2023.','IMG_7755'],['data','Data','What we have, what is missing, and where it all comes from.','IMG_7762']].map(r=>'<a href="#'+r[0]+'"><span class="w">'+r[1]+'</span><span class="d">'+r[2]+'</span><img src="'+IMG(r[3])+'" alt=""><span class="ar">'+IC.arr+'</span></a>').join('')+
+  [['who','Who voted for whom','Pick an age group and see how it most likely voted, constituency by constituency, with honest ranges.','IMG_7752'],['map','Results','Every constituency, every candidate, every vote count.','IMG_7764'],['parties','Parties','Seats, votes, and a coalition calculator you can play with.','IMG_7766'],['patterns','Patterns','Where each party is strong, and what the map can’t tell you.','IMG_7753'],['compare','Compare','How 2026 differs from 2023.','IMG_7755'],['data','Data','What we have, what is missing, and where it all comes from.','IMG_7762']].map(r=>'<a href="#'+r[0]+'"><span class="w">'+r[1]+'</span><span class="d">'+r[2]+'</span><img src="'+IMG(r[3])+'" alt=""><span class="ar">'+IC.arr+'</span></a>').join('')+
   '</div></section>'}
 
 /* ---------- MAP ---------- */
@@ -728,7 +763,7 @@ function patterns(){
   '<section class="sec wrap" style="border-top:2px solid var(--ink)"><div class="two"><div><h2 class="h-sec">Seats by region</h2><p>Constituency seats only. Each bar is one region; segments show which parties won its seats.</p></div><div class="reg">'+reg.map(o=>'<div class="r"><span>'+o.r+'</span><span class="bar">'+o.w.map(x=>'<i style="width:'+(100*x[1]/o.n)+'%;background:'+col(x[0])+'" data-tip2="'+esc(en(x[0]))+': '+x[1]+'"></i>').join('')+'</span><b>'+o.n+'</b></div>').join('')+'<div class="legend-inline">'+SEATED.filter(p=>p.cs>=4).map(p=>'<span><i style="background:'+p.c+'"></i>'+esc(p.en)+'</span>').join('')+'</div></div></div></section>'+
   '<section class="sec wrap" style="border-top:2px solid var(--ink)"><div class="two"><div><h2 class="h-sec">Cities and countryside</h2><p>Each dot is a province. Across is how crowded it is (people per km², on a log scale); up is the share of constituency votes a party won there.</p><div class="lab dot mute" style="margin-top:22px;font-size:14px">Party</div><div class="pick" id="scPick" style="margin-top:8px">'+top.slice(0,5).map(p=>'<button data-sc="'+esc(p.th)+'" class="'+(ST.scP===p.th?'on':'')+'" aria-pressed="'+(ST.scP===p.th)+'"><i style="background:'+p.c+'"></i>'+esc(p.en)+'</button>').join('')+'</div><div id="scR" style="margin-top:22px"></div></div><div id="scatter"></div></div>'+
   '<div class="aside-note"><img class="jig s3" src="'+IMG('IMG_7751')+'" alt=""><div><h4>A map can’t tell you who voted</h4><p>If a party does better in crowded provinces, that does not mean city people voted for it. It only describes places. To talk about people, you need surveys, and we label any estimate made from them as modeled.</p></div></div>'+
-  '<div class="aside-note" style="margin-top:0;border-top:0"><img class="bob" src="'+IMG('IMG_7759')+'" alt=""><div><h4>How groups voted: coming later</h4><p>For age, see how younger and older places voted on <a href="#who">Age and the vote</a>. Estimates for groups of people (by age, gender, income or education) need voter-survey data for 2026 that is large and open enough. When we have it, results will appear with their sample size and margin of error. <a href="#data">See what is missing</a>.</p></div></div></section>'}
+  '<div class="aside-note" style="margin-top:0;border-top:0"><img class="bob" src="'+IMG('IMG_7759')+'" alt=""><div><h4>How groups voted: coming later</h4><p>For age, see modelled estimates on <a href="#who">Who voted for whom</a>. Estimates for groups of people (by age, gender, income or education) need voter-survey data for 2026 that is large and open enough. When we have it, results will appear with their sample size and margin of error. <a href="#data">See what is missing</a>.</p></div></div></section>'}
 function scatter(){const el=$('#scatter');if(!el)return;const th=ST.scP,ps=Object.values(PROV),W=600,H=440,L=48,B=44,T=10,R=10;
   const pts=ps.map(p=>({p,x:Math.log10(p.dens),y:100*(p.cv[th]||0)/p.va}));const x0=Math.floor(Math.min(...pts.map(d=>d.x))*2)/2,x1=Math.ceil(Math.max(...pts.map(d=>d.x))*2)/2,y1=Math.ceil(Math.max(...pts.map(d=>d.y))/10)*10;
   const X=v=>L+(W-L-R)*(v-x0)/(x1-x0),Y=v=>T+(H-T-B)*(1-v/y1);
@@ -809,103 +844,120 @@ function lab(){const c=CONS['30_3'];
   [['Constituency DNA','Group constituencies by their traits and see which ones look alike.'],['Ask the Atlas','Ask a question in plain language. See the query and the source.'],['Document reader','Turn scanned result forms like ส.ส. 5/18 into checked tables.'],['Pattern finder','Flag unusual turnout or ballot counts for a closer look. A flag is never proof of wrongdoing.'],['Seat simulator','Change vote shares and see how 500 seats would be shared out.'],['Methods library','Plain explanations of MRP, ecological inference and more.']].map(t=>'<li><span class="t">'+t[0]+'</span><span class="ld"></span><span class="s">in design</span><p>'+t[1]+'</p></li>').join('')+'</ul></div>'+
   '<div><h2 class="h-sec">Open data, one record at a time</h2><p>Every record will carry its source and version. Here is what one constituency looks like.</p><div class="code" style="margin-top:24px">{\n  <span class="k">"id"</span>: "2026-30-03",\n  <span class="k">"province"</span>: "'+esc(PROV['30'].en)+'",\n  <span class="k">"constituency"</span>: 3,\n  <span class="k">"winner_party"</span>: "'+esc(en(c.w))+'",\n  <span class="k">"margin_votes"</span>: '+c.gap+',\n  <span class="k">"turnout_pct"</span>: '+f1(c.turn,2)+',\n  <span class="k">"source"</span>: "ECT results files",\n  <span class="k">"checked_against"</span>: "form 6/1"\n}</div><p class="dot mute" style="font-size:14px;margin-top:14px">Downloads and an API will open once the data audit is complete.</p></div></div></section>'}
 
-/* ---------- AGE AND THE VOTE (observed area patterns; per-group estimates wait for survey data) ---------- */
+/* ---------- WHO VOTED FOR WHOM (modelled by age) + raw-data check ---------- */
+const GR=(typeof GROUPS!=='undefined')?GROUPS:null;
 const AG=(typeof AGE!=='undefined')?AGE:null;
-const WS={g:0,party:1,sel:null};
+const WS={g:0,view:'top',party:1,sel:null,ag:1,ap:1};
 const OCOL=["#2E45C8","#F47920","#E30613","#16A34A","#00AEEF","#8E8E9A","#111111"];
 const RCOL={Bangkok:'#111111',Central:'#55555F',East:'#9A9AA8',West:'#D3D3DB',North:'#5521FF',Northeast:'#A48BFF',South:'#E2D9FF'};
 const LOCKED=[['Women','gender'],['Men','gender'],['University graduates','education'],['Lower income','income'],['Farmers','occupation']];
+const BANDW=['people aged 18–29','people aged 30–44','people aged 45–59','people aged 60+'];
+const BANDS=['18–29s','30–44s','45–59s','over-60s'];
 const GWORD=['people under 30','people under 45','people aged 60+'];
 const GSHORT=['under-30s','under-45s','over-60s'];
-let AIDX=null;
+let GIDX=null,AIDX=null;
+function gIndex(){if(GIDX)return GIDX;GIDX={};GR.ids.forEach((k,i)=>GIDX[k]=i);return GIDX}
 function aIndex(){if(AIDX)return AIDX;AIDX={};AG.ids.forEach((k,i)=>AIDX[k]=i);return AIDX}
 const pm=v=>(v/10).toFixed(1);
-const gShare=(g,i)=>g===0?AG.bands[0][i]:g===1?AG.bands[0][i]+AG.bands[1][i]:AG.bands[3][i];
-const oName=j=>AG.outcomes[j];
-const oPhrase=j=>j===6?'turnout':esc(AG.outcomes[j]);
-function natShare(g){let s=0,w=0;AG.ids.forEach((k,i)=>{const e=CONS[k].el;s+=gShare(g,i)*e;w+=e});return s/w}
-function whoFill(k){const i=aIndex()[k];if(i==null)return '#EEE';const E=AG.quint[AG.gkeys[WS.g]].edges;
-  return mixW('#5521FF',[.1,.26,.45,.7,1][binIdx(gShare(WS.g,i),E.slice(1,5))])}
-function whoTip(e,k){const i=aIndex()[k],c=CONS[k];if(i==null)return;
-  let b=0;for(let j=1;j<6;j++)if(AG.y[j][i]>AG.y[b][i])b=j;
-  tip.innerHTML='<b>'+esc(c.name)+'</b><div class="t2">'+esc(c.thn)+'</div><div style="margin-top:6px">'+esc(GWORD[WS.g][0].toUpperCase()+GWORD[WS.g].slice(1))+': '+pm(gShare(WS.g,i))+'% of adults<br>Party-list winner: '+esc(oName(b))+' '+pm(AG.y[b][i])+'%</div>';
-  tip.style.opacity=1;moveTip(e)}
+const pr=v=>Math.round(v/10);
+const pName=k=>GR.parties[k];
+function gTop(g,i){let b=0;for(let k=1;k<6;k++)if(GR.ptop[g][k][i]>GR.ptop[g][b][i])b=k;return [b,GR.ptop[g][b][i]/1000]}
+const sure=c=>c>=.9?'very likely':c>=.7?'likely':'too close to call';
+function whoFill(k){const i=gIndex()[k];if(i==null)return '#EEE';const g=WS.g,p=WS.party;
+  if(WS.view==='top'){const [b,c]=gTop(g,i);return mixW(OCOL[b],c>=.9?1:c>=.7?.55:.2)}
+  if(WS.view==='party'){const v=GR.mean[g][p][i]/10;return mixW(OCOL[p],[.1,.28,.5,.75,1][binIdx(v,[10,20,35,50])])}
+  const d=(GR.mean[g][p][i]-GR.everyone[p][i])/10;return ['#3A3A44','#A9A9B4','#F1F1F4',mixW('#5521FF',.45),'#5521FF'][binIdx(d,[-10,-3,3,10])]}
+function whoTip(e,k){const i=gIndex()[k],c=CONS[k];if(i==null)return;const g=WS.g;let line;
+  if(WS.view==='top'){const [b,cf]=gTop(g,i);line=cf<.7?'Too close to call':'Likely '+esc(pName(b))+', '+pr(GR.mean[g][b][i])+'% (range '+pr(GR.lo[g][b][i])+'–'+pr(GR.hi[g][b][i])+')'}
+  else{const p=WS.party;line=esc(pName(p))+': '+pr(GR.mean[g][p][i])+'% (range '+pr(GR.lo[g][p][i])+'–'+pr(GR.hi[g][p][i])+'), everyone '+pr(GR.everyone[p][i])+'%'}
+  tip.innerHTML='<b>'+esc(c.name)+'</b><div class="t2">'+esc(c.thn)+'</div><div style="margin-top:6px">'+esc(GR.groups[g])+': '+line+'</div>';tip.style.opacity=1;moveTip(e)}
 function whoPage(){
-  if(!AG)return pageHead('<b>AGE AND THE VOTE</b>','Coming soon','Being prepared.',null);
-  return '<section class="who-h wrap"><div class="kick"><b>AGE AND THE VOTE</b>2026 general election, party-list ballot</div>'+
-  '<h1 class="ask">Did places with more <label class="sr" for="wg">Group</label><select id="wg" class="inl">'+GWORD.map((g,i)=>'<option value="'+i+'"'+(WS.g===i?' selected':'')+'>'+g+'</option>').join('')+'</select> vote differently?</h1>'+
-  '<div class="gchips">'+AG.groups.map((g,i)=>'<button data-wg="'+i+'" class="'+(WS.g===i?'on':'')+'">'+g[0].toUpperCase()+g.slice(1)+'</button>').join('')+
+  if(!GR)return pageHead('<b>WHO VOTED FOR WHOM</b>','Coming soon','Being prepared.',null);
+  return '<section class="who-h wrap"><div class="kick"><b>WHO VOTED FOR WHOM</b>2026, party-list ballot, modelled</div>'+
+  '<h1 class="ask">How did <label class="sr" for="wg">Age group</label><select id="wg" class="inl">'+BANDW.map((g,i)=>'<option value="'+i+'"'+(WS.g===i?' selected':'')+'>'+g+'</option>').join('')+'</select> vote?</h1>'+
+  '<div class="gchips">'+GR.groups.map((g,i)=>'<button data-wg="'+i+'" class="'+(WS.g===i?'on':'')+'">'+g+'</button>').join('')+
   LOCKED.map(l=>'<button class="lock" data-lock="'+l[1]+'" title="Needs survey data">'+l[0]+'</button>').join('')+'</div><p class="locknote" id="locknote" hidden></p>'+
-  '<p class="who-lede"><b>Short answer: a little, and less than you might think.</b> Official results tell us how <b>places</b> voted, not how <b>people</b> voted. This page shows what the 2026 results can honestly say about age, and where they stop.</p></section>'+
-  '<section class="sec wrap qsec"><div class="qhead"><div><div class="step-n">01</div><h2 class="h-sec">Across the country</h2><p>We sorted all 400 constituencies by their share of <span class="gw"></span> and cut them into five equal piles, from fewest to most.</p></div>'+
-  '<div class="ctl"><label for="wp">Party<select class="sel" id="wp">'+AG.outcomes.map((o,j)=>'<option value="'+j+'"'+(WS.party===j?' selected':'')+'>'+esc(j===6?'Turnout (everyone)':o)+'</option>').join('')+'</select></label></div></div>'+
-  '<div class="qchart" id="qchart"></div><div class="rlg">'+AG.regions.map(r=>'<span><i style="background:'+RCOL[r]+'"></i>'+r+'</span>').join('')+'</div><p class="qcall" id="qcall"></p></section>'+
-  '<section class="band wsec"><div class="wrap"><div class="step-n">02</div><h2 class="h-sec">Inside the same province</h2><p class="wlead">Now compare neighbours. In each province we split its constituencies into the half with more <span class="gw"></span> and the half with fewer, then compared their results. Region and province no longer get in the way.</p>'+
-  '<div class="wgrid"><div class="wbig" id="wbig"></div><div class="dvg" id="dvg"></div></div><p class="wcall" id="wcall"></p></div></section>'+
-  '<section class="mapgrid who-grid"><div class="mapcol"><div class="ctl"><div class="lab"><span class="step-n sm">03</span>Where they live</div></div>'+
-  '<div class="mapwrap">'+mapSVG({id:'whoMap',bkk:true,label:'Share of the selected age group in each constituency'})+'</div><div id="wlegend"></div>'+
+  '<p class="who-lede"><b>Estimates, not counts.</b> Ballots are secret, so nobody knows exactly how each age group voted. We combine each constituency’s official result with its age mix and the age differences found in national polls. Every figure has a range. <a href="#how">How it works</a>.</p></section>'+
+  '<section class="mapgrid who-grid"><div class="mapcol"><div class="ctl"><div class="seg" role="group" aria-label="Map view">'+
+  [['top','Top choice'],['party','One party'],['gap','Vs everyone']].map(v=>'<button data-wv="'+v[0]+'" class="'+(WS.view===v[0]?'on':'')+'">'+v[1]+'</button>').join('')+'</div>'+
+  '<label id="wpWrap"'+(WS.view==='top'?' hidden':'')+'>Party<select class="sel" id="wp">'+GR.parties.map((o,j)=>'<option value="'+j+'"'+(WS.party===j?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select></label></div>'+
+  '<div class="mapwrap">'+mapSVG({id:'whoMap',bkk:true,label:'Modelled vote of the selected age group in each constituency'})+'</div><div id="wlegend"></div>'+
   '<div class="inset"><div class="cap"><span>Bangkok: 33 constituencies, enlarged</span></div>'+bkkSVG({id:'whoBk'})+'</div></div><aside class="side" id="wside" aria-live="polite"></aside></section>'+
-  '<section class="sec wrap"><div class="two"><div><div class="step-n">04</div><h2 class="h-sec">Why we don’t say how each age group voted. Yet.</h2>'+
-  '<p class="ink">A tempting shortcut: young places voted People’s Party, so young people did. That leap is called the <b>ecological fallacy</b>, and the chart above shows why it fails. The oldest constituencies are mostly in the North, which leans People’s Party for reasons that have little to do with age.</p>'+
-  '<p class="ink" style="margin-top:14px">Statistical models can sometimes recover group behaviour from area results. We tried. Within a province, the share of young voters differs between constituencies by only about two points, which is too little to work with. Ten reasonable versions of the model gave People’s Party anywhere from 5% to 50% among 18–29s. We won’t publish numbers that fragile.</p></div>'+
-  '<div class="card-plain"><h3 class="h-sec" style="font-size:24px">What the polls said</h3><p>Before the vote, surveys asked people directly. They point the same way the area patterns hint at, only more strongly.</p>'+
-  '<div class="kv2"><div><b>69%</b><span>of 18–25s in a January NIDA Poll planned a People’s Party list vote, against 34% of all ages</span></div><div><b>34%</b><span>of Gen Z (18–27) picked Natthaphong as prime minister in KPI Poll, Jan 8–11, vs 19% overall</span></div><div><b>20%</b><span>of 60+ picked Anutin in the same poll. Natthaphong was not in their top three</span></div></div>'+
-  '<p style="margin-top:14px">Polls also missed the final result, so they need checking against the count. Combining both is the plan: with full poll tables or survey microdata, this page will show estimates by age, gender, education and income, each with an honest range. <a href="#data">See what data we are missing</a>.</p>'+
-  '<p class="mute" style="margin-top:14px;font-size:14px">Sources: ECT 2026 result files; DOPA registered population by age, January 2026; NIDA Poll via ISEAS Perspective 2026/34; KPI Poll as reported by Thairath, 9 Jan 2026.</p></div></div></section>'}
-function qChart(){const el=$('#qchart');if(!el)return;const key=AG.gkeys[WS.g],Q=AG.quint[key],j=WS.party,c=OCOL[j];
+  '<section class="sec wrap" id="how"><div class="step-n">HOW IT WORKS</div><h2 class="h-sec">Three ingredients, one rule</h2>'+
+  '<div class="hw"><div><b>01</b><h3>The count</h3><p>Each constituency’s official party-list result, from the Election Commission’s files. This is exact.</p></div>'+
+  '<div><b>02</b><h3>The age mix</h3><p>How many adults in each constituency are 18–29, 30–44, 45–59 and 60+, from the national population register, January 2026.</p></div>'+
+  '<div><b>03</b><h3>The age gaps</h3><p>How much more or less each party appeals to each age group, from NIDA and KPI polls. Only the gaps are used, not the polls’ totals, because the polls missed the final result.</p></div>'+
+  '<div class="hw-r"><b>=</b><h3>The rule</h3><p>In every constituency, the age groups must add up exactly to the real count. So a People’s Party stronghold makes every age group there lean People’s Party, the young most of all.</p></div></div>'+
+  '<div class="two" style="margin-top:44px"><div><h3 class="mini-t">What we had to assume</h3><ul class="asm">'+GR.meta.assumptions.map(a=>'<li>'+esc(a)+'</li>').join('')+'</ul></div>'+
+  '<div><h3 class="mini-t">How sure is this?</h3><p>Ranges come from re-running the estimate 400 times with the uncertainty in the polls and in how much each place differs from the national pattern. On the map, faded colours mean the top choice is not settled.</p><p style="margin-top:12px">The biggest risk is the polls themselves. If their age gaps are off, every constituency shifts together. Full poll tables or survey data by age would sharpen this. Turnout by age, which only the Election Commission holds, would too.</p>'+
+  '<p class="mute" style="margin-top:14px;font-size:14px">Sources: '+GR.meta.sources.map(esc).join('; ')+'.</p></div></div></section>'+
+  (AG?checkSection():'')}
+function checkSection(){
+  return '<section class="sec wrap qsec"><div class="step-n">CHECK IT AGAINST THE RAW DATA</div><div class="qhead"><div><h2 class="h-sec">Did older places vote differently?</h2><p>The estimates above lean on polls. Here is what the official results show by themselves. We sorted all 400 constituencies by their share of <span class="gw"></span> and cut them into five piles.</p>'+
+  '<div class="gchips sm">'+AG.groups.map((g,i)=>'<button data-ag="'+i+'" class="'+(WS.ag===i?'on':'')+'">'+g[0].toUpperCase()+g.slice(1)+'</button>').join('')+'</div></div>'+
+  '<div class="ctl"><label for="ap">Party<select class="sel" id="ap">'+AG.outcomes.map((o,j)=>'<option value="'+j+'"'+(WS.ap===j?' selected':'')+'>'+esc(j===6?'Turnout (everyone)':o)+'</option>').join('')+'</select></label></div></div>'+
+  '<div class="qchart" id="qchart"></div><div class="rlg">'+AG.regions.map(r=>'<span><i style="background:'+RCOL[r]+'"></i>'+r+'</span>').join('')+'</div><p class="qcall" id="qcall"></p></section>'+
+  '<section class="band wsec"><div class="wrap"><h2 class="h-sec">Inside the same province</h2><p class="wlead">Now compare neighbours. In each province we split its constituencies into the half with more <span class="gw"></span> and the half with fewer, then compared their results.</p>'+
+  '<div class="wgrid"><div class="wbig" id="wbig"></div><div class="dvg" id="dvg"></div></div><p class="wcall" id="wcall"></p>'+
+  '<p class="wlead" style="margin-top:28px">Why so small? Neighbouring constituencies have very similar age mixes, so the official results alone cannot separate age groups. That is why the estimates need the polls. The two agree on direction: younger places lean a little more People’s Party.</p></div></section>'}
+function qChart(){const el=$('#qchart');if(!el)return;const key=AG.gkeys[WS.ag],Q=AG.quint[key],j=WS.ap,c=OCOL[j];
   const ys=Q.y[j],mx=Math.max(...ys,1);const lab=['Fewest','','Middle','','Most'];
   el.innerHTML=ys.map((v,b)=>'<div class="qcol"><div class="qv" style="color:'+(j===6?'#111':c)+'">'+pm(v)+'<small>%</small></div><div class="qbar"><i style="height:'+(100*v/(mx*1.08))+'%;background:'+c+'"></i></div>'+
     '<div class="qreg">'+AG.regions.map((r,ri)=>Q.reg[b][ri]>0?'<i style="flex:'+Q.reg[b][ri]+';background:'+RCOL[r]+'" title="'+r+' '+pm(Q.reg[b][ri])+'%"></i>':'').join('')+'</div>'+
-    '<div class="qlab"><b>'+(lab[b]||'&nbsp;')+'</b>'+pm(Q.edges[b])+'–'+pm(Q.edges[b+1])+'% '+GSHORT[WS.g]+'</div></div>').join('');
-  const top=r=>{let b=0;r.forEach((v,i)=>{if(v>r[b])b=i});return AG.regions[b]};
-  const d=ys[4]-ys[0];
-  $('#qcall').innerHTML='Where '+GSHORT[WS.g]+' are most common, '+oPhrase(j)+' '+(j===6?'was ':'got ')+'<b>'+pm(ys[4])+'%</b>, against <b>'+pm(ys[0])+'%</b> where they are fewest'+(Math.abs(d)<15?', about the same.':d>0?'.':'.')+
+    '<div class="qlab"><b>'+(lab[b]||'&nbsp;')+'</b>'+pm(Q.edges[b])+'–'+pm(Q.edges[b+1])+'% '+GSHORT[WS.ag]+'</div></div>').join('');
+  const top=r=>{let b=0;r.forEach((v,i)=>{if(v>r[b])b=i});return AG.regions[b]};const d=ys[4]-ys[0];
+  $('#qcall').innerHTML='Where '+GSHORT[WS.ag]+' are most common, '+(j===6?'turnout was ':esc(AG.outcomes[j])+' got ')+'<b>'+pm(ys[4])+'%</b>, against <b>'+pm(ys[0])+'%</b> where they are fewest'+(Math.abs(d)<15?', about the same.':'.')+
     ' But look at the strips under the bars: the “most” pile is mainly <b>'+top(Q.reg[4])+'</b> and the “fewest” pile mainly <b>'+top(Q.reg[0])+'</b>. Much of any gap here is about region, not age.'}
-function dvg(){const el=$('#dvg');if(!el)return;const key=AG.gkeys[WS.g],C=AG.cmp[key],M=40;
-  const X=v=>50+50*Math.max(-M,Math.min(M,v))/M;
-  el.innerHTML='<div class="dvh"><span class="dvhl"><span>← fewer '+GSHORT[WS.g]+' half did better</span><span>more '+GSHORT[WS.g]+' half did better →</span></span></div>'+
-  C.map((r,j)=>{const [m,lo,hi]=r,sig=lo>0||hi<0;return '<div class="dvr'+(j===WS.party?' cur':'')+(sig?' sig':'')+'"><span class="n">'+esc(j===6?'Turnout':oName(j))+'</span><span class="dvb"><em></em><i style="left:'+Math.min(X(0),X(m))+'%;width:'+Math.abs(X(m)-X(0))+'%;background:'+(j===6?'#fff':OCOL[j])+'"></i><b style="left:'+X(lo)+'%;width:'+(X(hi)-X(lo))+'%"></b></span><span class="v">'+(m>0?'+':m<0?'−':'±')+pm(Math.abs(m))+'<small>'+(lo>0?'+':lo<0?'−':'')+pm(Math.abs(lo))+' to '+(hi>0?'+':hi<0?'−':'')+pm(Math.abs(hi))+'</small></span></div>'}).join('')+
+function dvg(){const el=$('#dvg');if(!el)return;const key=AG.gkeys[WS.ag],C=AG.cmp[key],M=40;
+  const X=v=>50+50*Math.max(-M,Math.min(M,v))/M;const sg=v=>(v>0?'+':v<0?'−':'±')+pm(Math.abs(v));
+  el.innerHTML='<div class="dvh"><span class="dvhl"><span>← fewer '+GSHORT[WS.ag]+' half did better</span><span>more '+GSHORT[WS.ag]+' half did better →</span></span></div>'+
+  C.map((r,j)=>{const [m,lo,hi]=r,s=lo>0||hi<0;return '<div class="dvr'+(j===WS.ap?' cur':'')+(s?' sig':'')+'"><span class="n">'+esc(j===6?'Turnout':AG.outcomes[j])+'</span><span class="dvb"><em></em><i style="left:'+Math.min(X(0),X(m))+'%;width:'+Math.abs(X(m)-X(0))+'%;background:'+(j===6?'#fff':OCOL[j])+'"></i><b style="left:'+X(lo)+'%;width:'+(X(hi)-X(lo))+'%"></b></span><span class="v">'+sg(m)+'<small>'+sg(lo)+' to '+sg(hi)+'</small></span></div>'}).join('')+
   '<div class="dvax"><span>−4 pts</span><span>0</span><span>+4 pts</span></div>';
-  $('#wbig').innerHTML='<div class="wn">'+pm(AG.spread[key])+'<small>pts</small></div><p>That is how much the two halves differ in their share of '+GSHORT[WS.g]+', on average. Neighbouring constituencies are very alike in age.</p>';
-  const ups=[],downs=[];let tn=0;C.forEach((r,j)=>{const sg=r[1]>0?1:r[2]<0?-1:0;if(j===6){tn=sg;return}if(sg>0)ups.push(oName(j));if(sg<0)downs.push(oName(j))});
+  $('#wbig').innerHTML='<div class="wn">'+pm(AG.spread[key])+'<small>pts</small></div><p>That is how much the two halves differ in their share of '+GSHORT[WS.ag]+', on average. Neighbouring constituencies are very alike in age.</p>';
+  const ups=[],downs=[];let tn=0;C.forEach((r,j)=>{const s=r[1]>0?1:r[2]<0?-1:0;if(j===6){tn=s;return}if(s>0)ups.push(AG.outcomes[j]);if(s<0)downs.push(AG.outcomes[j])});
   const and=a=>a.length<2?a[0]:a.slice(0,-1).join(', ')+' and '+a[a.length-1];const parts=[];
   if(ups.length)parts.push('leans a little more toward <b>'+and(ups)+'</b>');if(downs.length)parts.push((ups.length?' and ':'leans a little ')+'away from <b>'+and(downs)+'</b>');
   if(tn)parts.push((parts.length?', and ':'')+'turnout is a little '+(tn>0?'higher':'lower'));
-  $('#wcall').innerHTML='Where a constituency has more '+GSHORT[WS.g]+' than its neighbours, its vote '+(parts.length?parts.join(''):'shows no clear shift')+'. Every difference is under '+Math.ceil(Math.max(...C.map(r=>Math.abs(r[0])))/10)+' points. Ranges show where 90% of resampled results fall; a range that crosses zero could be chance.'}
-function whoLegend(){const L=$('#wlegend');if(!L)return;const E=AG.quint[AG.gkeys[WS.g]].edges;
-  L.innerHTML='<div class="ramp">'+[0,1,2,3,4].map(b=>'<span><i style="background:'+mixW('#5521FF',[.1,.26,.45,.7,1][b])+'"></i>'+pm(E[b])+'–'+pm(E[b+1])+'%</span>').join('')+'</div><p class="dot mute" style="font-size:13px;margin-top:8px">Share of adults who are '+GWORD[WS.g].replace('people ','')+', by constituency. Registered population, January 2026.</p>'}
-function stackAge(i,cls){const t=[0,1,2,3].map(b=>i==null?0:AG.bands[b][i]);return '<div class="astk'+(cls?' '+cls:'')+'">'+t.map((v,b)=>'<i style="flex:'+v+';background:'+mixW('#5521FF',[1,.62,.34,.14][b])+(b<2?';color:#fff':'')+'"><b>'+Math.round(v/10)+'%</b></i>').join('')+'</div>'}
+  $('#wcall').innerHTML='Where a constituency has more '+GSHORT[WS.ag]+' than its neighbours, its vote '+(parts.length?parts.join(''):'shows no clear shift')+'. Every difference is under '+Math.ceil(Math.max(...C.map(r=>Math.abs(r[0])))/10)+' points. Ranges show where 90% of resampled results fall; a range that crosses zero could be chance.'}
+function whoLegend(){const L=$('#wlegend');if(!L)return;const p=WS.party;let h;
+  if(WS.view==='top'){const used=[...new Set(GR.ids.map((k,i)=>gTop(WS.g,i)[0]))].sort((a,b)=>a-b);
+    h='<div class="lg">'+used.map(k=>'<span><i style="background:'+OCOL[k]+'"></i>'+esc(pName(k))+'</span>').join('')+'</div><div class="cert"><span><i style="background:#555"></i>very likely (90%+)</span><span><i style="background:'+mixW('#555555',.55)+'"></i>likely (70–90%)</span><span><i style="background:'+mixW('#555555',.2)+'"></i>too close to call</span></div>'}
+  else if(WS.view==='party')h='<div class="ramp">'+['under 10%','10–20%','20–35%','35–50%','50%+'].map((t,b)=>'<span><i style="background:'+mixW(OCOL[p],[.1,.28,.5,.75,1][b])+'"></i>'+t+'</span>').join('')+'</div><p class="dot mute" style="font-size:13px;margin-top:8px">Estimated '+esc(pName(p))+' share among '+BANDS[WS.g]+' who cast a party-list vote.</p>';
+  else h='<div class="ramp">'+[['#3A3A44','10+ pts lower'],['#A9A9B4','3–10 lower'],['#F1F1F4','within 3'],[mixW('#5521FF',.45),'3–10 higher'],['#5521FF','10+ pts higher']].map(x=>'<span><i style="background:'+x[0]+';border:1px solid #DDD"></i>'+x[1]+'</span>').join('')+'</div><p class="dot mute" style="font-size:13px;margin-top:8px">'+esc(pName(p))+' among '+BANDS[WS.g]+', compared with everyone in the same constituency.</p>';
+  L.innerHTML=h}
+let IVS=750;function ivScale(rows){IVS=Math.min(1000,Math.max(400,...rows.map(r=>Math.max(r[1],r[2]||0)))*1.04)}
+function ivRow(name,c,m,lo,hi,all){const S=IVS;return '<div class="ivr"><span class="n">'+esc(name)+'</span><span class="ivb"><i style="width:'+(100*m/S)+'%;background:'+c+'"></i><b style="left:'+(100*lo/S)+'%;width:'+(100*(hi-lo)/S)+'%"></b>'+(all!=null?'<u style="left:'+(100*all/S)+'%" title="Everyone"></u>':'')+'</span><span class="v">'+pr(m)+'%<small>'+pr(lo)+'–'+pr(hi)+'</small></span></div>'}
 function whoSide(){const S=$('#wside');if(!S)return;const g=WS.g;
-  const row=(name,c,m)=>'<div class="ivr"><span class="n">'+esc(name)+'</span><span class="ivb"><i style="width:'+(100*m/700)+'%;background:'+c+'"></i></span><span class="v">'+pm(m)+'%</span></div>';
-  const natB=[0,1,2,3].map(b=>{let s=0,w=0;AG.ids.forEach((k,i)=>{const e=CONS[k].el;s+=AG.bands[b][i]*e;w+=e});return s/w});
-  const natStack='<div class="astk nat">'+natB.map((v,b)=>'<i style="flex:'+v+';background:'+mixW('#5521FF',[1,.62,.34,.14][b])+(b<2?';color:#fff':'')+'"><b>'+Math.round(v/10)+'%</b></i>').join('')+'</div>';
-  const akey='<div class="akey">'+AG.bandLabels.map((l,b)=>'<span><i style="background:'+mixW('#5521FF',[1,.62,.34,.14][b])+'"></i>'+l+'</span>').join('')+'</div>';
-  if(WS.sel){const k=WS.sel,i=aIndex()[k],c=CONS[k];
-    const sib=AG.ids.map((kk,ii)=>[kk,ii]).filter(x=>CONS[x[0]].p===c.p);const pAvg=sib.reduce((s,x)=>s+gShare(g,x[1])*CONS[x[0]].el,0)/sib.reduce((s,x)=>s+CONS[x[0]].el,0);
-    const me=gShare(g,i),diff=me-pAvg;
-    let h='<div class="eyebrow">'+esc(PROV[c.p].reg)+', constituency '+c.n+'</div><h2>'+esc(c.name)+'<small>'+esc(c.thn)+'</small></h2>'+
-      '<div class="mini-h"><span>Age make-up of adults</span><span class="mute">registered, Jan 2026</span></div>'+stackAge(i)+'<div class="mini-h" style="margin-top:10px"><span class="mute">Thailand</span></div>'+natStack+akey+
-      '<p class="dot" style="font-size:14px;margin-top:14px">'+pm(me)+'% '+GSHORT[g]+' here, '+(Math.abs(diff)<5?'about the same as':diff>0?pm(Math.abs(diff))+' points more than':pm(Math.abs(diff))+' points fewer than')+' the '+esc(PROV[c.p].en)+' average ('+pm(pAvg)+'%).</p>'+
-      '<div class="mini-h"><span>Party-list result, everyone</span><span class="mute">official</span></div>'+[0,1,2,3,4,5].map(j=>row(oName(j),OCOL[j],AG.y[j][i])).join('')+
-      '<div class="facts"><div><span>Turnout, party-list ballot</span><b>'+pm(AG.y[6][i])+'%</b></div><div><span>Eligible voters</span><b>'+fmt(c.el)+'</b></div></div>';
-    S.innerHTML=h+'<div style="margin-top:20px"><button class="btn-o" data-wback="1">← Back to nationwide</button></div>';return}
-  const ns=natShare(g);let lo=null,hi=null;AG.ids.forEach((k,i)=>{const v=gShare(g,i);if(lo==null||v<gShare(g,lo))lo=i;if(hi==null||v>gShare(g,hi))hi=i});
-  S.innerHTML='<div class="eyebrow">Nationwide</div><h2>'+pm(ns)+'%<small>of adults are '+GWORD[g].replace('people ','')+'</small></h2>'+
-    '<div class="mini-h"><span>Age make-up of adults, Thailand</span></div>'+natStack+akey+
-    '<div class="facts"><div><span>Most '+GSHORT[g]+'</span><b>'+pm(gShare(g,hi))+'%</b><span>'+esc(CONS[AG.ids[hi]].name)+'</span></div><div><span>Fewest</span><b>'+pm(gShare(g,lo))+'%</b><span>'+esc(CONS[AG.ids[lo]].name)+'</span></div></div>'+
-    '<p class="dot mute" style="font-size:14px;margin-top:16px">Tap any constituency to see its age make-up next to how it voted.</p>'}
+  const key='<p class="dot mute" style="font-size:13px;margin-top:10px">Bar: estimate. Line: range, 90% of runs. Grey tick: everyone, official count.</p>';
+  if(WS.sel){const k=WS.sel,i=gIndex()[k],c=CONS[k];if(i==null){WS.sel=null;return whoSide()}const [b,cf]=gTop(g,i);
+    let bk=0;for(let j=1;j<6;j++)if(GR.everyone[j][i]>GR.everyone[bk][i])bk=j;
+    S.innerHTML='<div class="eyebrow">'+esc(PROV[c.p].reg)+', constituency '+c.n+'</div><h2>'+esc(c.name)+'<small>'+esc(c.thn)+'</small></h2>'+
+      '<p class="sidelede">'+esc(GR.groups[g])+' are <b>'+pr(GR.share[g][i])+'%</b> of adults here. Their top choice: <b style="color:'+OCOL[b]+'">'+esc(pName(b))+'</b>, '+sure(cf)+' ('+Math.round(cf*100)+'% of runs).</p>'+
+      '<div class="mini-h"><span>'+esc(GR.groups[g])+', estimated</span><span class="mute">party-list</span></div>'+
+      (ivScale([0,1,2,3,4,5].map(j=>[0,GR.hi[g][j][i],GR.everyone[j][i]])),'')+[0,1,2,3,4,5].map(j=>ivRow(pName(j),OCOL[j],GR.mean[g][j][i],GR.lo[g][j][i],GR.hi[g][j][i],GR.everyone[j][i])).join('')+key+
+      '<div class="mini-h"><span>Other age groups here, top choice</span></div><div class="agesw">'+GR.groups.map((gl,gg)=>{const [bb,cc]=gTop(gg,i);return '<button data-wg="'+gg+'" class="'+(gg===g?'on':'')+'"><span>'+gl+'</span><b style="color:'+OCOL[bb]+'">'+(cc<.7?'Close':esc(pName(bb)))+'</b></button>'}).join('')+'</div>'+
+      '<div class="facts"><div><span>Everyone’s top choice (official)</span><b>'+esc(pName(bk))+'</b></div><div><span>Eligible voters</span><b>'+fmt(c.el)+'</b></div></div>'+
+      '<div style="margin-top:20px"><button class="btn-o" data-wback="1">← Back to nationwide</button></div>';return}
+  const tally=[0,0,0,0,0,0],sureN=[0,0,0,0,0,0];GR.ids.forEach((k,i)=>{const [bb,cc]=gTop(g,i);tally[bb]++;if(cc>=.9)sureN[bb]++});
+  const lead=tally.indexOf(Math.max(...tally));
+  S.innerHTML='<div class="eyebrow">Nationwide, modelled</div><h2>'+esc(GR.groups[g])+'<small>'+esc(pName(lead))+' is their likely top choice in '+tally[lead]+' of 400 constituencies</small></h2>'+
+    '<div class="mini-h"><span>Party-list vote, '+esc(GR.groups[g])+'</span><span class="mute">estimate</span></div>'+
+    (ivScale([0,1,2,3,4,5].map(j=>[0,GR.nat.hi[g][j],GR.natAll[j]])),'')+[0,1,2,3,4,5].map(j=>ivRow(pName(j),OCOL[j],GR.nat.mean[g][j],GR.nat.lo[g][j],GR.nat.hi[g][j],GR.natAll[j])).join('')+key+
+    '<div class="mini-h"><span>Likely top choice, by constituency</span></div><div class="wtally">'+tally.map((n,j)=>n?'<span><i style="background:'+OCOL[j]+'"></i>'+esc(pName(j))+' <b>'+n+'</b><small>'+sureN[j]+' very likely</small></span>':'').join('')+'</div>'+
+    '<p class="dot mute" style="font-size:14px;margin-top:16px">Tap a constituency for its estimate.</p>'}
 function whoPaint(){$$('#whoMap .c, #whoBk .c').forEach(el=>{const k=el.dataset.id;el.setAttribute('fill',whoFill(k));el.classList.toggle('sel',k===WS.sel)});
-  $$('.gw').forEach(s=>s.textContent=GWORD[WS.g]);qChart();dvg();whoLegend();whoSide()}
-function whoInit(){if(!AG)return;whoPaint()}
-function whoSetGroup(g){WS.g=g;const s=$('#wg');if(s)s.value=g;$$('[data-wg]').forEach(b=>b.classList.toggle('on',+b.dataset.wg===g));whoPaint()}
+  whoLegend();whoSide();if(AG){$$('.gw').forEach(s=>s.textContent=GWORD[WS.ag]);qChart();dvg()}}
+function whoInit(){if(!GR)return;whoPaint()}
+function whoSetGroup(g){WS.g=g;const s=$('#wg');if(s)s.value=g;$$('.who-h [data-wg]').forEach(b=>b.classList.toggle('on',+b.dataset.wg===g));whoPaint()}
+function agSet(i){WS.ag=i;$$('[data-ag]').forEach(b=>b.classList.toggle('on',+b.dataset.ag===i));whoPaint()}
 
 /* ---------- router ---------- */
 const PAGES={'':home,who:whoPage,map:mapPage,parties,patterns,compare,data:dataPage,lab};
-const NAV=[['who','Age and the vote'],['map','Results'],['parties','Parties'],['patterns','Patterns'],['compare','Compare'],['data','Data']];
+const NAV=[['who','Who voted for whom'],['map','Results'],['parties','Parties'],['patterns','Patterns'],['compare','Compare'],['data','Data']];
 function header(r){$('#nav').innerHTML=NAV.map(n=>'<a href="#'+n[0]+'" class="'+(r===n[0]?'on':'')+'">'+n[1]+'</a>').join('')+'<a href="#lab" class="res'+(r==='lab'?' on':'')+'">For researchers</a>'}
 function route(){let r=location.hash.slice(1);if(!(r in PAGES))r='';header(r);closeDrawer();
   $('#main').innerHTML=PAGES[r]();window.scrollTo(0,0);tip.style.opacity=0;
-  document.title=r?(r==='lab'?'Researchers':r==='who'?'Age and the vote':r==='map'?'Results':r[0].toUpperCase()+r.slice(1))+' | Thai Electoral Atlas':'Thai Electoral Atlas';
+  document.title=r?(r==='lab'?'Researchers':r==='who'?'Who voted for whom':r==='map'?'Results':r[0].toUpperCase()+r.slice(1))+' | Thai Electoral Atlas':'Thai Electoral Atlas';
   if(r==='map')mapInit();if(r==='who')whoInit();if(r==='parties')coalOut();if(r==='patterns')scatter()}
 function openDrawer(){const d=$('#drawer');d.hidden=false;d.querySelector('nav').innerHTML='<a href="#">Home</a>'+NAV.map(n=>'<a href="#'+n[0]+'">'+n[1]+'</a>').join('')+'<a href="#lab">Researchers</a>';$('#drawer .x').focus();document.body.style.overflow='hidden'}
 function closeDrawer(){const d=$('#drawer');if(d&&!d.hidden){d.hidden=true;document.body.style.overflow=''}}
@@ -916,10 +968,11 @@ document.addEventListener('click',e=>{const t=e.target;
   const c=t.closest('.c[data-id]');
   if(c){const k=c.dataset.id;if(c.closest('#whoMap,#whoBk')){WS.sel=k;whoPaint();if(innerWidth<1000)$('#wside').scrollIntoView({behavior:'smooth',block:'start'});return}if(c.closest('#homeMap')){ST.sel=k;ST.prov='';location.hash='map';return}if($('#bigMap'))selectCons(k);return}
   const wg=t.closest('[data-wg]');if(wg){whoSetGroup(+wg.dataset.wg);return}
+  const ag=t.closest('[data-ag]');if(ag){agSet(+ag.dataset.ag);return}
   const wgo=t.closest('[data-wgo]');if(wgo){WS.g=+wgo.dataset.wgo;WS.sel=null;location.hash='who';return}
   const wv=t.closest('[data-wv]');if(wv){WS.view=wv.dataset.wv;$$('[data-wv]').forEach(b=>b.classList.toggle('on',b===wv));$('#wpWrap').hidden=WS.view==='top';whoPaint();return}
   const wb=t.closest('[data-wback]');if(wb){WS.sel=null;whoPaint();return}
-  const lk=t.closest('[data-lock]');if(lk){const n=$('#locknote');if(n){n.hidden=false;n.innerHTML='<b>'+esc(lk.textContent)+'</b> needs voter-survey data, which we do not have yet. Age works here only because we know how old each constituency’s residents are. <a href="#data">See what is missing</a>.'}return}
+  const lk=t.closest('[data-lock]');if(lk){const n=$('#locknote');if(n){n.hidden=false;n.innerHTML='<b>'+esc(lk.textContent)+'</b> needs voter-survey data, which we do not have yet. Age works because we know each constituency’s age mix and polls report age differences. <a href="#data">See what is missing</a>.'}return}
   const m=t.closest('[data-mode]');if(m){ST.mode=m.dataset.mode;$$('[data-mode]').forEach(b=>b.classList.toggle('on',b===m));$('#shareWrap').hidden=ST.mode!=='share';paintMaps();return}
   const f=t.closest('[data-focus]');if(f){const v=f.dataset.focus;if(v==='__clear')ST.focus.clear();else ST.focus.has(v)?ST.focus.delete(v):ST.focus.add(v);paintMaps();return}
   const z=t.closest('[data-z]');if(z){const v=VB||VB0;if(z.dataset.z==='reset'){ST.prov='';$('#provSel').value='';ST.sel=null;setVB(VB0);paintMaps();side();return}const k=z.dataset.z==='in'?.7:1/.7,cx=v[0]+v[2]/2,cy=v[1]+v[3]/2,W=Math.min(VB0[2]*1.2,v[2]*k),H=Math.min(VB0[3]*1.2,v[3]*k);setVB([cx-W/2,cy-H/2,W,H]);return}
@@ -930,7 +983,7 @@ document.addEventListener('click',e=>{const t=e.target;
   const sc=t.closest('[data-sc]');if(sc){ST.scP=sc.dataset.sc;$$('[data-sc]').forEach(x=>{x.classList.toggle('on',x===sc);x.setAttribute('aria-pressed',x===sc)});scatter();return}
   const ce=t.closest('[data-cell]');if(ce){ST.cell=ce.dataset.cell;const y=scrollY;$('#main').innerHTML=dataPage();window.scrollTo(0,y);return}
 });
-document.addEventListener('change',e=>{if(e.target.id==='wg'){whoSetGroup(+e.target.value);return}if(e.target.id==='wp'){WS.party=+e.target.value;whoPaint();return}if(e.target.id==='provSel')selectProv(e.target.value);if(e.target.id==='shareSel'){ST.share=e.target.value;paintMaps()}});
+document.addEventListener('change',e=>{if(e.target.id==='wg'){whoSetGroup(+e.target.value);return}if(e.target.id==='wp'){WS.party=+e.target.value;whoPaint();return}if(e.target.id==='ap'){WS.ap=+e.target.value;whoPaint();return}if(e.target.id==='provSel')selectProv(e.target.value);if(e.target.id==='shareSel'){ST.share=e.target.value;paintMaps()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
 window.addEventListener('hashchange',route);
 route();

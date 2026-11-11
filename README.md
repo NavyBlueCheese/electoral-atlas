@@ -9,12 +9,14 @@ This repository holds the public website (a static site, no build step) and the 
 ```
 index.html            the site (HTML, CSS and JS in one file)
 data.js               generated data: 2026 results, boundaries, cross-checks
+groups.js             generated data: modelled party-list vote by age group in every constituency
 age.js                generated data: age make-up of each constituency and area-level age patterns
 img/                  logo and mascot illustrations
 data/crosswalk/       sub-district to constituency crosswalk, 2026
 data/age/             adults by age group in each 2026 constituency
 scripts/build_geo.sh  simplifies constituency boundaries with mapshaper
 scripts/build_data.py joins results, boundaries and the cross-check into data.js
+scripts/age_groups.py builds groups.js (poll-informed estimates, calibrated to official results)
 scripts/age_patterns.py builds age.js
 scripts/xwalk_spatial.py builds the crosswalk
 scripts/ei/           experimental group-vote estimation engine (not used on the site, see its README)
@@ -34,6 +36,7 @@ Open `index.html` through any static server, for example `python3 -m http.server
 2. `bash scripts/build_geo.sh`
 3. `python3 scripts/build_data.py`
 4. `TEA_RESULTS=sources/election69/data/2569/ python3 scripts/age_patterns.py`
+5. `TEA_RESULTS=sources/election69/data/2569/ python3 scripts/age_groups.py` (needs numpy, jax, numpyro)
 
 ## Data sources and licences
 
