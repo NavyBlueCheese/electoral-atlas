@@ -1,31 +1,7 @@
 # Thai Electoral Atlas
 
-An independent, nonpartisan research platform for Thailand's elections: results, political geography and demographic voting patterns, with every number traced to its source.
-
-This repository holds the public website (a static site, no build step) and the scripts that produce its data.
-
-## Structure
-
-```
-index.html            the site (HTML, CSS and JS in one file)
-data.js               generated data: 2026 results, boundaries, cross-checks
-groups.js             generated data: modelled party-list vote by age group in every constituency
-age.js                generated data: age make-up of each constituency and area-level age patterns
-img/                  logo and mascot illustrations
-data/crosswalk/       sub-district to constituency crosswalk, 2026
-data/age/             adults by age group in each 2026 constituency
-scripts/build_geo.sh  simplifies constituency boundaries with mapshaper
-scripts/build_data.py joins results, boundaries and the cross-check into data.js
-scripts/age_groups.py builds groups.js (poll-informed estimates, calibrated to official results)
-scripts/age_patterns.py builds age.js
-scripts/xwalk_spatial.py builds the crosswalk
-scripts/ei/           experimental group-vote estimation engine (not used on the site, see its README)
-vercel.json           static hosting settings
-```
-
-## Run locally
-
-Open `index.html` through any static server, for example `python3 -m http.server`, then visit http://localhost:8000.
+An independent, nonpartisan research platform for Thailand's elections: results, political geography and demographic voting patterns.
+This repository holds the public website and the scripts that produce its data.
 
 ## Rebuild the data
 
@@ -50,11 +26,8 @@ Open `index.html` through any static server, for example `python3 -m http.server
 | 2026 certified seat totals | Reuters via The Star, 6 March 2026 | News report |
 | 2023 seat totals and turnout | US-ASEAN Business Council; The Phuket Express, 25 May 2023 | News reports |
 
-Party colours are approximate display colours, not official branding.
+Party colours are approximate display colours and not official branding.
 
-## Principles
-
-Nonpartisan. Official results are shown as published. Estimates are labelled as modeled and carry their uncertainty. Where two official records disagree, the site shows both.
 
 ## Licence
 
